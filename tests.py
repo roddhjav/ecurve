@@ -27,6 +27,6 @@ r=8094458595770206542003150089514239385761983350496862878239630488323200271273
 C = EllipticCurve(p, n, a4, a6, r4, r6, gx, gy, r)
 
 P = Point(C, C.gx, C.gy)
-Q = P + P
-print(Q)
+#Q = P + P
+#print(Q)
 

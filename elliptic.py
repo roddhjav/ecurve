@@ -16,7 +16,9 @@ class EllipticCurve(object):
 
 
    def testPoint(self, x, y):
-      return y*y == x*x*x + self.a4 * x + self.a6
+      res1=(y*y)% self.p
+      res2=(x*x*x + self.a4 * x + self.a6) % self.p
+      return res1 == res2
 
 
    def __str__(self):
