@@ -31,7 +31,7 @@ class EllipticCurve(object):
 
    def __eq__(self, other):
       return (self.p, self.n, self.a4, self.a6) == (other.p, other.n, other.a4, other.a6)
-
+      
 
 
 class Point(object):
@@ -55,8 +55,13 @@ class Point(object):
    def __eq__(self, other):
       return (self.curve,self.x,self.y)==(other.curve,other.x,other.y)
 
+   def __neg__(self):
+      Xq=self.x
+      #yq = xp -a1*xp -a3
+      Yq=self.x +self.y % self.curve.p
+      return Point(self.curve,Xq,Yq)
 
-   def __add__(self, Q):
+   def add_distinct_points(self, Q):
       if self.curve != Q.curve:
          raise Exception("Can't add points on different curves!")
       if isinstance(Q, Ideal):
@@ -64,16 +69,29 @@ class Point(object):
       
       Xp, Yp, Xq, Yq = self.x, self.y, Q.x, Q.y
 
-      if Xp == Xq:
-         l = (Xp^2 + Yp)/Xp % self.curve.p   
-      else:
-         l = (Yp+Yq)/(Xp+Xq) % self.curve.p
+      X =Xp+Xq
+      l = (Yp+Yq/X)% self.curve.p
 
-      Xr = l^2 + l + Xp + Xq % self.curve.p
-      Yr = ( l + 1 )*Xr + l*Xp + Yp % self.curve.p
-
+      Xr = (l*l +l + X) % self.curve.p
+      Yr = ((l+1)*Xr + l*Xp + Yp) % self.curve.p
       return Point(self.curve, Xr, Yr)
 
+   def double(self):
+      Xp = self.x
+      Yp = self.y
+
+      l = (Xp + Yp/Xp) % self.curve.p
+      Xr = (l*l+l) % self.curve.p
+      Yr = (Xp*Xp + l*Xr + Xr) % self.curve.p
+      print "compute 2P\n"
+      return Point(self.curve,Xr,Yr)
+
+   def __add__(self,Q):
+
+      if self == Q:
+         return self.double()
+      else:
+         return self.add_distinct_points(Q)
 
    def __mul__(self, n):
       if not isinstance(n, int):
@@ -104,8 +122,7 @@ class Point(object):
       return [self.x, self.y]
 
    def __eq__(self, other):
-      if type(other) is Ideal:
-         return False
+      return self.x==other.x and self.y == other.y
 
       return self.x, self.y == other.x, other.y
 
