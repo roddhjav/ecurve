@@ -26,37 +26,23 @@ class Point(object):
       Yq=self.x +self.y % self.curve.p
       return Point(self.curve,Xq,Yq)
 
-   def add_distinct_points(self, Q):
+   def __add__(self,Q):
       if self.curve != Q.curve:
          raise Exception("Can't add points on different curves!")
-      if isinstance(Q, Ideal):
-         return self
-      
-      Xp, Yp, Xq, Yq = self.x, self.y, Q.x, Q.y
+      Xp= self.x
+      Yp= self.y
+      Xq= Q.x
+      Yq= Q.y
 
-      X =Xp+Xq
-      l = (Yp+Yq/X)% self.curve.p
-
-      Xr = (l*l +l + X) % self.curve.p
-      Yr = ((l+1)*Xr + l*Xp + Yp) % self.curve.p
-      return Point(self.curve, Xr, Yr)
-
-   def double(self):
-      Xp = self.x
-      Yp = self.y
-
-      l = (Xp + Yp/Xp) % self.curve.p
-      Xr = (l*l+l) % self.curve.p
-      Yr = (Xp*Xp + l*Xr + Xr) % self.curve.p
-      print "compute 2P\n"
-      return Point(self.curve,Xr,Yr)
-
-   def __add__(self,Q):
-
-      if self == Q:
-         return self.double()
+      if Xp == Xq:
+         l= ((3*Xp*Xp+self.curve.a4)/(2*Yp))
       else:
-         return self.add_distinct_points(Q)
+         l = (Yp-Yq)/(Xp-Xq)
+
+      Xr= (l*l-Xp-Xq) % self.curve.p
+      Yr= (l*Xp - Yp -l*Xr) % self.curve.p
+      
+      return Point(self.curve, Xr, Yr)
 
    def __mul__(self, n):
       if not isinstance(n, int):
