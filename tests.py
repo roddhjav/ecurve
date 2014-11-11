@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from elliptic import *
+from point import *
 #from fractions import Fraction as frac
 """
 p=52914114478485656642176597318734753781044372360386663740642114956171332007083
