@@ -1,3 +1,17 @@
+def egcd(a, b):
+    if a == 0:
+        return (b, 0, 1)
+    else:
+        g, y, x = egcd(b % a, a)
+        return (g, x - (b // a) * y, y)
+
+def modinv(a, m):
+    g, x, y = egcd(a, m)
+    if g != 1:
+        raise Exception('modular inverse does not exist')
+    else:
+        return x % m
+
 
 class Point(object):
    def __init__(self, curve, x, y):
@@ -33,11 +47,11 @@ class Point(object):
       Yp= self.y
       Xq= Q.x
       Yq= Q.y
-
+      #Attention la division ici correspond à une multiplication par l'inverse modulaire
       if Xp == Xq:
-         l= ((3*Xp*Xp+self.curve.a4)/(2*Yp))
+         l= ((3*Xp*Xp+self.curve.a4)*modinv(2*Yp,p))
       else:
-         l = (Yp-Yq)/(Xp-Xq)
+         l = (Yp-Yq)*modinv(Xp-Xq,p)
 
       Xr= (l*l-Xp-Xq) % self.curve.p
       Yr= (l*Xp - Yp -l*Xr) % self.curve.p
