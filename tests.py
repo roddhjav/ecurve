@@ -17,9 +17,16 @@ r=8094458595770206542003150089514239385761983350496862878239630488323200271273
 
 C = EllipticCurve(p, n, a4, a6, r4, r6, gx, gy, r)
 
+
 P = Point(C, C.gx, C.gy)
-Q = P+P
-print (Q)
+Q1 = Point(C,0,1,True)
+
+for i in range(1,20):
+   Q1 = Q1 + P
+   Q2 = i*P
+   assert Q1 == Q2, "Multiplication and addition have different results(%dP)" % i
+
+print ("Multiplication->OK")
 
 """
 p=5
@@ -35,7 +42,7 @@ r=8094458595770206542003150089514239385761983350496862878239630488323200271273
 
 C = EllipticCurve(p, n, a4, a6, r4, r6, gx, gy, r)
 
-#P = Point(C, C.gx, C.gy)
+#P = Point(C, C.gx, C.gy,False)
 P = Point(C, 3, 1)
 Q = Point(C, 2, 4)
 R = Q + P
