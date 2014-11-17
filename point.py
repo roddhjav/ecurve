@@ -1,3 +1,5 @@
+import math
+
 def egcd(a, b):
     if a == 0:
         return (b, 0, 1)
@@ -12,6 +14,25 @@ def modinv(a, m):
     else:
         return x % m
 
+def primes(n):
+   primfac = []
+   multiple = False
+   d = 2
+   while d*d <=n:
+      dpow = 1
+      while(n%d) == 0:
+         dpow = dpow*d
+         multiple = True
+         n /= d
+      if multiple:
+         primfac.append(dpow)
+         multiple=False
+      d +=1
+   
+   if n>1:
+      primfac.append(n)
+   
+   return primfac
 
 class Point(object):
    def __init__(self, curve, x, y, z=False):
@@ -80,22 +101,21 @@ class Point(object):
 
       if n == 1:
          return self
-         
-      if n == 2:
-         return self+self
       
       Q = Point(self.curve,0,1,True)
-
-      i = 1
-      while i <= n:
-         print ("2Q")
+      i = 1 << (int(math.log(n,2)))
+      while i > 0:
          Q = Q + Q
          if n & i == i:
-            print ("Q+P")
             Q = Q + self
-         i = i << 1
+         i = i >> 1
       return Q
 
+   def order(self):
+      
+      m = self.curve.n
+      
+      #for i
 
    def __rmul__(self, n):
       return self * n
@@ -113,6 +133,7 @@ class Point(object):
 
    def __getitem__(self, index):
       return [self.x, self.y][index]
+   
 
 
 class Ideal(Point):
