@@ -18,6 +18,8 @@ class Point(object):
       self.curve = curve # the curve containing this point
       self.x = x
       self.y = y
+      #Boolean
+      #Indicates if point is infinite
       self.z = z
 
       if not curve.testPoint(x,y):
