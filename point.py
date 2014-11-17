@@ -47,9 +47,10 @@ class Point(object):
       Yp= self.y
       Xq= Q.x
       Yq= Q.y
-      #Attention la division ici correspond à une multiplication par l'inverse modulaire
+      # Careful here it is not a simple division
+      # But a modular inversion
       if Xp == Xq:
-         l= ((3*Xp*Xp+self.curve.a4)*modinv(2*Yp,p))
+         l= ((3*Xp*Xp+self.curve.a4)*modinv(2*Yp,self.curve.p))
       else:
          l = (Yp-Yq)*modinv(Xp-Xq,p)
 
