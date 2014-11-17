@@ -14,6 +14,8 @@ def modinv(a, m):
     else:
         return x % m
 
+#takes a number as argument and returns the factorization of that number
+#for example 12 = [2^2,3]
 def primes(n):
    primfac = []
    multiple = False
