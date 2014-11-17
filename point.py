@@ -22,7 +22,7 @@ class Point(object):
       #Indicates if point is infinite
       self.z = z
 
-      if not curve.testPoint(x,y):
+      if not curve.testPoint(x,y,z):
          raise Exception("The point %s is not on the given curve %s!" % (self, curve))
 
 
@@ -52,23 +52,19 @@ class Point(object):
       Yp= self.y
       Xq= Q.x
       Yq= Q.y
-      print "fuck"
       if self.isIdeal():
-         print "merde"
          return Q
       if Q.isIdeal():
-         print "merde 2"
          return self
       if Q == -self:
-         return Point(0,1,True)
+         return Point(self.curve,0,1,True)
       
-      print ("Mais euh")
       # Careful here it is not a simple division
       # But a modular inversion
       if Xp == Xq:
          l= ((3*Xp*Xp+self.curve.a4)*modinv(2*Yp,self.curve.p))
       else:
-         l = (Yp-Yq)*modinv(Xp-Xq,p)
+         l = (Yp-Yq)*modinv((Xp-Xq)%self.curve.p,self.curve.p)
 
       Xr= (l*l-Xp-Xq) % self.curve.p
       Yr= (l*Xp - Yp -l*Xr) % self.curve.p
@@ -79,22 +75,26 @@ class Point(object):
       if not isinstance(n, int):
          raise Exception("Can't scale a point by something which isn't an int!")
 
-      if n < 0:
-         return -self * -n
-
       if n == 0:
-         return Ideal(self.curve)
+         return Point(self.curve,0,1,True)
 
-      Q = self
-      R = self if n & 1 == 1 else Ideal(self.curve)
+      if n == 1:
+         return self
+         
+      if n == 2:
+         return self+self
+      
+      Q = Point(self.curve,0,1,True)
 
-      i = 2
+      i = 1
       while i <= n:
-         Q += Q
+         print ("2Q")
+         Q = Q + Q
          if n & i == i:
-             R += Q
+            print ("Q+P")
+            Q = Q + self
          i = i << 1
-      return R
+      return Q
 
 
    def __rmul__(self, n):

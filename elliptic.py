@@ -15,10 +15,10 @@ class EllipticCurve(object):
       self.r = r
 
 
-   def testPoint(self, x, y):
+   def testPoint(self, x, y, z):
       res1=(y*y)% self.p
       res2=(x*x*x + self.a4 * x + self.a6) % self.p
-      return res1 == res2
+      return (res1 == res2) or z
 
 
    def __str__(self):
