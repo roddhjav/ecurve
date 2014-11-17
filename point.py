@@ -14,10 +14,11 @@ def modinv(a, m):
 
 
 class Point(object):
-   def __init__(self, curve, x, y):
+   def __init__(self, curve, x, y, z=False):
       self.curve = curve # the curve containing this point
       self.x = x
       self.y = y
+      self.z = z
 
       if not curve.testPoint(x,y):
          raise Exception("The point %s is not on the given curve %s!" % (self, curve))
@@ -26,6 +27,8 @@ class Point(object):
    def __str__(self):
       return "(%r, %r)" % (self.x, self.y)
 
+   def isIdeal(self):
+      return self.z
 
    def __repr__(self):
       return str(self)
@@ -36,9 +39,9 @@ class Point(object):
 
    def __neg__(self):
       Xq=self.x
-      #yq = xp -a1*xp -a3
-      Yq=self.x +self.y % self.curve.p
-      return Point(self.curve,Xq,Yq)
+      #yq = -Yp -a1*xp -a3
+      Yq= (-self.y) % self.curve.p
+      return Point(self.curve,Xq,Yq, False)
 
    def __add__(self,Q):
       if self.curve != Q.curve:
@@ -47,6 +50,17 @@ class Point(object):
       Yp= self.y
       Xq= Q.x
       Yq= Q.y
+      print "fuck"
+      if self.isIdeal():
+         print "merde"
+         return Q
+      if Q.isIdeal():
+         print "merde 2"
+         return self
+      if Q == -self:
+         return Point(0,1,True)
+      
+      print ("Mais euh")
       # Careful here it is not a simple division
       # But a modular inversion
       if Xp == Xq:
@@ -56,7 +70,7 @@ class Point(object):
 
       Xr= (l*l-Xp-Xq) % self.curve.p
       Yr= (l*Xp - Yp -l*Xr) % self.curve.p
-      
+   
       return Point(self.curve, Xr, Yr)
 
    def __mul__(self, n):
