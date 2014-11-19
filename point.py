@@ -114,10 +114,7 @@ class Point(object):
       return Q
 
    def order(self):
-      
-      m = self.curve.n
-      
-      #for i
+      return self.curve.n
 
    def __rmul__(self, n):
       return self * n
@@ -126,9 +123,7 @@ class Point(object):
       return [self.x, self.y]
 
    def __eq__(self, other):
-      return self.x==other.x and self.y == other.y
-
-      return self.x, self.y == other.x, other.y
+      return self.x == other.x and self.y == other.y
 
    def __ne__(self, other):
       return not self == other
