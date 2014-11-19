@@ -21,18 +21,21 @@ def primes(n):
    multiple = False
    d = 2
    while d*d <=n:
-      dpow = 1
+      dpow = 0
       while(n%d) == 0:
-         dpow = dpow*d
+         dpow = dpow + 1
          multiple = True
          n /= d
+      
       if multiple:
+         primfac.append(d)
          primfac.append(dpow)
          multiple=False
       d +=1
    
    if n>1:
       primfac.append(n)
+      primfac.append(1)
    
    return primfac
 
@@ -114,7 +117,23 @@ class Point(object):
       return Q
 
    def order(self):
-      return self.curve.n
+      
+      m = self.curve.n
+      factors = primes(m)
+      
+      r = len(factors)/2
+      
+      for i in range(0,r):
+         pi = factors[2*i]
+         ei = factors[2*i+1]
+         m = m/(pi^ei)
+         Q = m*P
+         
+         while not Q.isIdeal:
+            Q = pi*Q
+            m = m*pi
+         
+      return m
 
    def __rmul__(self, n):
       return self * n
