@@ -2,6 +2,7 @@
 
 from elliptic import *
 from point import *
+from diffiehellman import *
 #from fractions import Fraction as frac
 
 
@@ -32,6 +33,8 @@ for i in range(1,100):
    assert Q1 == Q2, "Multiplication and addition have different results(%dP)" % i
 
 print ("Multiplication->OK")
+
+DH(C)
 
 """
 p=5
