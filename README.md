@@ -9,5 +9,6 @@ http://alexis.bonnecaze.perso.luminy.univ-amu.fr/CryptoAvancee.pdf
 - Diffie - Hellman
 - El - Gamal
 - ECDSA
+https://www.nsa.gov/ia/_files/ecdsa.pdf
 - STS ( https://notendur.hi.is/pgg/Handbook%20of%20Applied%20Cryptography.pdf page 519 - 520 )
     http://en.wikipedia.org/wiki/Station-to-Station_protocol
