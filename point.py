@@ -98,7 +98,7 @@ class Point(object):
       return Point(self.curve, Xr, Yr)
 
    def __mul__(self, n):
-      if not isinstance(n, int):
+      if not isinstance(n, int) and not isinstance(n, long):
          raise Exception("Can't scale a point by something which isn't an int!")
 
       if n == 0:
