@@ -1,13 +1,16 @@
 import math
 import random
+import hashlib
 from elliptic import *
 from point import *
+from ec_utils import *
 
 
 # TODO : Add comment about var
 class ECDSA(object):
-   def __init__(self, curve):
-
+   def __init__(self, curve,d=None,Q=None):
+      self.d
+      self.Q
    def gen_key_pair(self):
       #need n and G to generate the random key pair
       n = self.curve.n
@@ -28,9 +31,37 @@ class ECDSA(object):
    def load_key_pair(self):
       #Load pregenerated keys for later tests
 
-   def sign(self):
+   def sign(self, m):
       
+      r=1
+      s=1 
+      Q = self.Q
+      n = self.curve.n
+      d = self.d
+      k = random.getrandbits(50)
+      G = Point(self.curve.gx,self.curve.gy)
+      
+      R =  k*G
+      
+      r = R[0] % n
+      
+      while s == 0
+         while r == 0:
+            G = Point(self.curve.gx,self.curve.gy)
+            R =  k*G
+            r = R[0] % n
 
+         kinv = modinv(k,n)
+      
+         H = hashlib.sha256()
+         H.update(m)
+      
+         digest = H.hexdigest()
+         e = int(digest,16)
+      
+         s = (kinv*(e+d*r)) % n
+      
+      return (r,s)
 """
 1. Use one of the routines in Appendix A.2 to generate (k, k^1),
 a per-message secret number and its inverse modulo n.
