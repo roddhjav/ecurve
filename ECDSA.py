@@ -9,27 +9,76 @@ from ec_utils import *
 # TODO : Add comment about var
 class ECDSA(object):
    def __init__(self, curve,d=None,Q=None):
-      self.d
-      self.Q
+      self.d = d
+      self.Q = Q
+      self.curve = curve
+
    def gen_key_pair(self):
       #need n and G to generate the random key pair
       n = self.curve.n
-      G = Point(self.curve.gx, self.curve.gy)
+      G = Point(self.curve,self.curve.gx, self.curve.gy)
       N = int(math.log(n))
       
-      d = random.getrandbits(N)
+      c = random.getrandbits(N)
       
       while c > (n-2):
-         d = random.getrandbits(N)
+         c = random.getrandbits(N)
       
-      d = d + 1
+      d = c + 1
       Q = d*G
       
       #return d and Q
       return (d,Q)
       
-   def load_key_pair(self):
+   def load_key_pair(self,path):
       #Load pregenerated keys for later tests
+      data = {}
+      
+      f = open(path,"r")
+      
+      lines = f.readlines()
+      
+      for line in lines:
+         (var,val) = line.split('=')
+         data[var]=int(val) 
+      
+      self.curve = EllipticCurve(data["p"],
+                                 data["n"], 
+                                 data["a4"],
+                                 data["a6"],
+                                 data["r4"],
+                                 data["r6"],
+                                 data["gx"],
+                                 data["gy"],
+                                 data["r"])
+      self.d = data["d"]
+      self.Q = Point(self.curve,int(data["Qx"]),int(data["Qy"]))
+      
+      f.close()
+
+#Idea use function in Ellipticcurve to get necessary arguments in the right format
+   def save_key_pair(self,path):
+      f = open(path,"w")
+      
+      f.write("n="+str(self.curve.n)+"\n")
+      f.write("p="+str(self.curve.p)+"\n")
+      f.write("a4="+str(self.curve.a4)+"\n")
+      f.write("a6="+str(self.curve.a6)+"\n")
+      f.write("r4="+str(self.curve.r4)+"\n")
+      f.write("r6="+str(self.curve.r6)+"\n")
+      f.write("a4="+str(self.curve.a4)+"\n")
+      f.write("r="+str(self.curve.r)+"\n")
+      f.write("gx="+str(self.curve.gx)+"\n")
+      f.write("gy="+str(self.curve.gy)+"\n")
+      f.write("d="+str(self.d)+"\n")
+      f.write("Qx="+str(self.Q[0])+"\n")
+      f.write("Qy="+str(self.Q[1])+"\n")
+      
+      f.close()
+
+   def set_key(self,d,Q):
+      self.d = d
+      self.Q = Q
 
    def sign(self, m):
       
@@ -45,7 +94,7 @@ class ECDSA(object):
       
       r = R[0] % n
       
-      while s == 0
+      while s == 0:
          while r == 0:
             G = Point(self.curve.gx,self.curve.gy)
             R =  k*G
@@ -77,7 +126,6 @@ the set of domain parameters.
 
 5.Convert the bit string H to an integer e as described in Appendix
 
-6.Compute s= (k^1∗(e+d∗r)) mod n. If s= 0, return to Step 1
-
+6.Compute s=(k^1*(e+d*r)) mod n. if s=0, return to step 1
 7. return (r, s)
 """
