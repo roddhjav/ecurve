@@ -25,3 +25,15 @@ ecdsa = ECDSA(EC)
 
 ecdsa.load_key_pair("keys/key_1")
 
+(r,s) = ecdsa.sign("I like chicken wings with barbecue sauce.")
+
+print ("r="+str(r)+"\n")
+print ("s="+str(s)+"\n")
+
+if ecdsa.verify_signature("I like chicken wings with barbecue sauce.",r,s):
+   print ("Guys this is really working.")
+
+else:
+   
+   print ("Fuck guys we have much work to do.")
+
