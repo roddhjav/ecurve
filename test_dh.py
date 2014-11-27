@@ -3,7 +3,21 @@
 from elliptic import *
 from point import *
 from diffiehellman import *
+import socket
+import threading
 
+
+class DHThread(threading.Thread):
+   def __init__(self,curve, IP, port):
+      self.curve = curve
+      threading.Thread.__init__(self)
+      self.IP = IP
+      self.port = port
+   
+   def run(self):
+      dh = DH(self.curve,"jacques")
+      dh.exchange_key(self.IP,self.port)
+      print dh.name+" sent\n"
 
 p=8884933102832021670310856601112383279507496491807071433260928721853918699951
 n=8884933102832021670310856601112383279454437918059397120004264665392731659049
@@ -15,13 +29,37 @@ gx=7638166354848741333090176068286311479365713946232310129943505521094105356372
 gy=762687367051975977761089912701686274060655281117983501949286086861823169994
 r=8094458595770206542003150089514239385761983350496862878239630488323200271273
 
+IP = "localhost"
+port = 10000
+
 curve = EllipticCurve(p, n, a4, a6, r4, r6, gx, gy, r)
+Alice = DHThread(curve,IP,port)
+Bob = DHThread(curve,IP,port)
 
-AliceDH = DH(curve)
-BobDH = DH(curve)
+nb_clients=0
 
-AliceDH.setkey(BobDH.ga)
-BobDH.setkey(AliceDH.ga)
+serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+serversocket.bind((IP,port))
+serversocket.listen(1)
+connections = []
+messages = []
 
-assert AliceDH.gba == BobDH.gba, "Error AliceDH.gba != BobDH.gba"
+Alice.start()
+Bob.start()
+
+while nb_clients<2:
+   connection, address = serversocket.accept()
+   buf = connection.recv(1024)
+   connections.append(connection)
+   messages.append(buf)
+   nb_clients = nb_clients+1
+
+connections[1].send(messages[0])
+connections[0].send(messages[1])
+
+Alice.join()
+Bob.join()
+
+
+#assert AliceDH.gba == BobDH.gba, "Error AliceDH.gba != BobDH.gba"
 

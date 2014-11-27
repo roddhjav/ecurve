@@ -2,6 +2,7 @@ import math
 import random
 from elliptic import *
 from point import *
+import socket
 
 #Add exchange over network
 #Check if random function is truly random
@@ -19,9 +20,6 @@ class DH(object):
       self.g = Point(self.curve, self.curve.gx,  self.curve.gy)
       self.ga = self.a*self.g
       
-      print("a   =", self.a)
-      print("g   =", self.g)
-      print("g^a =", self.ga)
       
    def setkey(self, gb):
       self.gba = self.a*gb
@@ -41,6 +39,13 @@ class DH(object):
    def exchange_key(self,IP,port):
       clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
       clientsocket.connect((IP,port))
-      clientsocket.send(name+":"+self.ga)
-      reply = s.recv(1024)
+      clientsocket.send(str(self.ga[0])+","+str(self.ga[1]))
+      reply = clientsocket.recv(1024)
+      (x,y) = reply.split(',')
+      
+      gb = Point(self.curve,int(x), int(y))
+      
+      gab = self.a*gb
+      
+      print str(gab)
    
