@@ -88,7 +88,7 @@ class ECDSA(object):
       n = self.curve.n
       d = self.d
       k = random.getrandbits(50)
-      G = Point(self.curve.gx,self.curve.gy)
+      G = Point(self.curve,self.curve.gx,self.curve.gy)
       
       R =  k*G
       
@@ -100,17 +100,45 @@ class ECDSA(object):
             R =  k*G
             r = R[0] % n
 
-         kinv = modinv(k,n)
+      kinv = modinv(k,n)
       
-         H = hashlib.sha256()
-         H.update(m)
+      H = hashlib.sha256()
+      H.update(m)
       
-         digest = H.hexdigest()
-         e = int(digest,16)
-      
-         s = (kinv*(e+d*r)) % n
+      digest = H.hexdigest()
+      e = int(digest,16)
+      s = (kinv*(e+d*r)) % n
       
       return (r,s)
+   
+   def verify_signature(self,m,r,s):
+      
+      n = self.curve.n
+      G = Point(self.curve,self.curve.gx,self.curve.gy)
+      Q = self.Q
+      
+      
+      H = hashlib.sha256()
+      H.update(m)
+      
+      digest = H.hexdigest()
+      e = int(digest,16)
+      
+      w = modinv(s,n)
+      u1 = (e*w) % n
+      u2 = (r*w) %n
+      
+      R = u1*G + u2*Q
+      
+      if R.isIdeal():
+         return False
+      
+      v = R[0]
+      
+      if v == r:
+         return True
+      else:
+         return False
 """
 1. Use one of the routines in Appendix A.2 to generate (k, k^1),
 a per-message secret number and its inverse modulo n.
