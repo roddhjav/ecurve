@@ -43,7 +43,7 @@ def Keygen():
    print(" Generate keys")
    (publickey, privatekey) = elgamal.keygen()
    
-   print(" Write keys")
+   print(" Write keys : " + results.output)
    key.writeKey(results.output+'.pub', 'ELGAMAL', curve, publickey)
    key.writeKey(results.output, 'ELGAMAL', curve, privatekey)
 
@@ -149,10 +149,6 @@ parser.add_argument( '-o', '--output',
                      help='Output')
 results = parser.parse_args()
 
-
-if not results.prgm:
-   raise Exception('Argument error')
-
 if results.prgm is 'keygen':
    Keygen()
 
@@ -161,4 +157,6 @@ elif results.prgm is 'crypt':
 
 elif results.prgm is 'decrypt':
    Decrypt()
+else:
+   raise Exception('Argument error')
    
