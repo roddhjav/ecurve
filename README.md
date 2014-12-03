@@ -1,18 +1,62 @@
-# Elliptic Curves 
+# Elliptic Curves in python
 
-http://alexis.bonnecaze.perso.luminy.univ-amu.fr/CryptoAvancee.pdf
+## Usage
+The program provide 4 softwares with similar command line usage
 
-## TODO
+### Diffie Hellman
 
-- rassembler fonctions mathématiques dans un nouveau fichier
-- Trouver une fonction de factorisation efficace
-- Diffie - Hellman
-- El - Gamal
-- ECDSA ( Works )
-Add File signature
-https://www.nsa.gov/ia/_files/ecdsa.pdf
-- STS ( https://notendur.hi.is/pgg/Handbook%20of%20Applied%20Cryptography.pdf page 519 - 520 )
-    http://en.wikipedia.org/wiki/Station-to-Station_protocol
 
--We should maybe switch from using variables directly to using getters
-instead of self.curve.n use self.curve.getOrder()
+Get the help
+```
+dh -h
+```
+
+### Elgamal
+
+Generate an elgamal key pair
+```
+elgamal --keygen -c <elliptic_curve> -o <keys_path>
+```
+
+Crypt a file
+```
+elgamal --crypt -k <public_key> -i <file> -o <file_encrypted>
+```
+
+Decrypt a file
+```
+elgamal --decrypt -k <public_key> -i <file_encrypted> -o <file>
+```
+
+Get the help
+```
+elgamal -h
+```
+
+**WARNING** 
+Option like keygen, crypt and decrypt are mandatory. The other option are not mandatory, the default path are : 
+* Curve : `curves/w256-001.gp`
+* Public key : `keys/elgamal.pub`
+* Private key : `keys/elgamal`
+* File : `sample/text`
+* File encrypted : `sample/text.elgamal`
+* Decrypted file : `sample/text.decoded`
+
+### ECDSA
+
+Get the help
+```
+ecdsa -h
+```
+
+### STS
+
+
+Get the help
+```
+sts -h
+```
+
+## Authors
+* Author Alexandre PUJOL <alexandre.pujol.1@etu.univ-amu.fr>
+* Author Maxime CHEMIN <maxime.chemin@etu.univ-amu.fr>
