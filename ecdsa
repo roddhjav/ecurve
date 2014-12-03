@@ -1,0 +1,161 @@
+#!/usr/bin/env python
+#
+# ecdsa - ECDSA with elliptic curve.
+# Version 1.0
+# Year 2014
+# Author Alexandre PUJOL <alexandre.pujol.1@etu.univ-amu.fr>
+# Author Maxime CHEMIN <maxime.chemin@etu.univ-amu.fr>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License.
+#
+
+import argparse
+from tools import *
+from elliptic import *
+from ECDSA import *
+
+
+""" Generate ecdsa keys
+ Input :
+ - Curve (default : curves/w256-001.gp)
+ Output :
+ - Public key (default : keys/ecdsa.pub)
+ - Private key (default : keys/ecdsa)
+"""
+def Keygen():
+   print(":: Keygen")
+   
+   if results.key is not False or results.input is not False:
+      raise Exception('Argument error')
+   
+   if results.loadcurve is False:
+      results.loadcurve = 'curves/w256-001.gp'
+
+   if results.output is False:
+      results.output = 'keys/ecdsa'
+      
+   print(" Load curve : " + results.loadcurve)
+   curve = tools.loadCurve(results.loadcurve)
+   
+   ecdsa = ECDSA(curve)
+   
+   print(" Generate keys")
+   (publickey, privatekey) = ecdsa.keygen()
+   
+   print(" Write keys")
+   key.writeKey(results.output+'.pub', 'ECDSA', curve, publickey)
+   key.writeKey(results.output, 'ECDSA', curve, privatekey)
+
+
+
+""" Sign a file
+ Input :
+ - Private key (default : keys/ecdsa)
+ - Message (default : sample/text)
+ Output :
+ - Signed message (default : sample/text.ecdsa)
+"""
+def Sign():
+   print(":: Sign")
+   
+   if results.loadcurve is not False:
+      raise Exception('Argument error')
+      
+   if results.key is False:
+      results.key = 'keys/ecdsa'
+      
+   if results.input is False:
+      results.input = 'sample/text'
+      
+   if results.output is False:
+      results.output = 'sample/text.ecdsa'
+      
+   print(" Read privatekey key : " + results.key)
+   (curve, privatekey) = key.readKey(results.key)
+   
+   print(" Read message : " + results.input)
+   m = tools.readFile(results.input)
+   m = m.encode('utf-8')
+   
+   print(" Sign the message")
+   ecdsa = ECDSA(curve)
+   (r, s) = ecdsa.sign(privatekey, m)    
+   
+   print(" Write the signed message : " + results.output)
+   signed = str(m) + "\n" + str(r) + "\n" + str(s)
+   tools.writeFile(results.output, signed)
+
+
+
+""" Verify the signature
+ Input :
+ - Public key (default : keys/ecdsa.pub)
+ - Signed file (default : sample/text.ecdsa)
+"""
+def Verif():
+   print(":: Verif")
+   
+   if results.loadcurve is not False or results.output is not False:
+      raise Exception('Argument error')
+      
+   if results.key is False:
+      results.key = 'keys/ecdsa.pub'
+      
+   if results.input is False:
+      results.input = 'sample/text.ecdsa'
+      
+   print(" Read public key : " + results.key)
+   (curve, publickey) = key.readKey(results.key)
+   
+   print(" Read the signed file : " + results.input)
+   # TODO : find a way to read the file and his signed from the same file
+   signed = tools.readFile(results.input).split('\n')
+   length = len(signed)
+   r = int(signed[length - 2])
+   s = int(signed[length - 1])
+   m = tools.readFile(results.input[0:-6])
+   m = m.encode('utf-8')
+   
+   print(" Verify the signature")
+   ecdsa = ECDSA(curve)
+   
+   if ecdsa.verif(publickey, m, r, s) is True:
+      print(" => Guys this is really working.")
+   else:
+      print(" => Fuck guys we have much work to do.")
+
+
+parser = argparse.ArgumentParser(description='ECDSA with elliptic curve.')
+parser.add_argument( '-K','--keygen',
+                     action='store_const', dest='prgm', const='keygen',
+                     help='Generate key')
+parser.add_argument( '-S', '--sign',
+                     action='store_const', dest='prgm', const='sign',
+                     help='Sign a file')
+parser.add_argument( '-V', '--verif',
+                     action='store_const', dest='prgm', const='verif',
+                     help='Verify the signature')
+parser.add_argument( '-c', '--curve',
+                     action='store', default=False, dest='loadcurve',
+                     help='Load  curve')
+parser.add_argument( '-k', '--key',
+                     action='store', default=False, dest='key',
+                     help='Load  key')
+parser.add_argument( '-i', '--input',
+                     action='store', default=False, dest='input',
+                     help='Input')
+parser.add_argument( '-o', '--output',
+                     action='store', default=False, dest='output',
+                     help='Output')
+results = parser.parse_args()
+
+if results.prgm is 'keygen':
+   Keygen()
+elif results.prgm is 'sign':
+   Sign()
+elif results.prgm is 'verif':
+   Verif()
+else:
+   raise Exception('Argument error')
+   

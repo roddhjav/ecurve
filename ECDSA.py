@@ -3,139 +3,88 @@ import random
 import hashlib
 from elliptic import *
 from point import *
-from ec_utils import *
+from ectools import *
 
-
-# TODO : Add comment about var
 class ECDSA(object):
-   def __init__(self, curve,d=None,Q=None):
-      self.d = d
-      self.Q = Q
+   """ ECDSA encryption
+   - self.curve (EllipticCurve) The elliptic curve used
+   - self.generator (Point) A generator of the curve
+   """
+   def __init__(self, curve):
       self.curve = curve
+      self.generator = Point(self.curve, self.curve.gx, self.curve.gy)
 
-   def gen_key_pair(self):
-      #need n and G to generate the random key pair
-      n = self.curve.n
-      G = Point(self.curve,self.curve.gx, self.curve.gy)
-      N = int(math.log(n))
-      
+   """ Generate ecdsa keys
+    - publickey (Point) the public key
+    - privatekey (int) the private key
+   """
+   def keygen(self):
+      N = int(math.log(self.curve.n, 2)) - 1
       c = random.getrandbits(N)
       
-      while c > (n-2):
+      while c > (self.curve.n - 2):
          c = random.getrandbits(N)
       
-      d = c + 1
-      Q = d*G
+      privatekey = c + 1
+      publickey = privatekey*self.generator
       
-      #return d and Q
-      return (d,Q)
-      
-   def load_key_pair(self,path):
-      #Load pregenerated keys for later tests
-      data = {}
-      
-      f = open(path,"r")
-      
-      lines = f.readlines()
-      
-      for line in lines:
-         (var,val) = line.split('=')
-         data[var]=int(val) 
-      
-      self.curve = EllipticCurve(data["p"],
-                                 data["n"], 
-                                 data["a4"],
-                                 data["a6"],
-                                 data["r4"],
-                                 data["r6"],
-                                 data["gx"],
-                                 data["gy"],
-                                 data["r"])
-      self.d = data["d"]
-      self.Q = Point(self.curve,int(data["Qx"]),int(data["Qy"]))
-      
-      f.close()
-
-#Idea use function in Ellipticcurve to get necessary arguments in the right format
-   def save_key_pair(self,path):
-      f = open(path,"w")
-      
-      f.write("n="+str(self.curve.n)+"\n")
-      f.write("p="+str(self.curve.p)+"\n")
-      f.write("a4="+str(self.curve.a4)+"\n")
-      f.write("a6="+str(self.curve.a6)+"\n")
-      f.write("r4="+str(self.curve.r4)+"\n")
-      f.write("r6="+str(self.curve.r6)+"\n")
-      f.write("a4="+str(self.curve.a4)+"\n")
-      f.write("r="+str(self.curve.r)+"\n")
-      f.write("gx="+str(self.curve.gx)+"\n")
-      f.write("gy="+str(self.curve.gy)+"\n")
-      f.write("d="+str(self.d)+"\n")
-      f.write("Qx="+str(self.Q[0])+"\n")
-      f.write("Qy="+str(self.Q[1])+"\n")
-      
-      f.close()
-
-   def set_key(self,d,Q):
-      self.d = d
-      self.Q = Q
-
-   def sign(self, m):
-      
-      r=1
-      s=1 
-      Q = self.Q
-      n = self.curve.n
-      d = self.d
+      return (publickey, privatekey)
+   
+   """ Sign a message
+    Input :
+    - privatekey (int) the private key
+    - m (bytes) message encoded in utf8
+    Output :
+    - r (int)
+    - s (int)
+   """
+   def sign(self, privatekey, m):
+      r = 1
+      s = 1
       k = random.getrandbits(50)
-      G = Point(self.curve,self.curve.gx,self.curve.gy)
+      R = k*self.generator
       
-      R =  k*G
-      
-      r = R[0] % n
-      
+      r = R[0] % self.curve.n      
       while s == 0:
          while r == 0:
-            G = Point(self.curve.gx,self.curve.gy)
-            R =  k*G
-            r = R[0] % n
+            R = k*self.generator
+            r = R[0] % self.curve.n
 
-      kinv = modinv(k,n)
+      kinv = modinv(k, self.curve.n)
       
       H = hashlib.sha256()
       H.update(m)
-      
       digest = H.hexdigest()
-      e = int(digest,16)
-      s = (kinv*(e+d*r)) % n
-      
-      return (r,s)
+      e = int(digest, 16)
+      s = (kinv*(e + privatekey*r)) % self.curve.n
+      return (r, s)
    
-   def verify_signature(self,m,r,s):
-      
-      n = self.curve.n
-      G = Point(self.curve,self.curve.gx,self.curve.gy)
-      Q = self.Q
-      
-      
+   """ Verify a signature
+    Input :
+    - publickey (Point) the public key
+    - m (bytes) message encoded in utf8
+    - r (int)
+    - s (int)
+    Output :
+    - True  : The signature has been verified
+    - False : The signature has not been verified
+   """
+   def verif(self, publickey, m, r, s):
       H = hashlib.sha256()
       H.update(m)
       
       digest = H.hexdigest()
-      e = int(digest,16)
+      e = int(digest, 16)
       
-      w = modinv(s,n)
-      u1 = (e*w) % n
-      u2 = (r*w) %n
+      w = modinv(s, self.curve.n)
+      u1 = (e*w) % self.curve.n
+      u2 = (r*w) % self.curve.n
       
-      R = u1*G + u2*Q
-      
+      R = u1*self.generator + u2*publickey
       if R.isIdeal():
          return False
-      
-      v = R[0]
-      
-      if v == r:
+
+      if R[0] == r:
          return True
       else:
          return False
