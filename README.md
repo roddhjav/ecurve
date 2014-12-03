@@ -58,5 +58,5 @@ sts -h
 ```
 
 ## Authors
-* Author Alexandre PUJOL <alexandre.pujol.1@etu.univ-amu.fr>
-* Author Maxime CHEMIN <maxime.chemin@etu.univ-amu.fr>
+* Alexandre PUJOL <alexandre.pujol.1@etu.univ-amu.fr>
+* Maxime CHEMIN <maxime.chemin@etu.univ-amu.fr>
