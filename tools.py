@@ -1,5 +1,5 @@
 #
-# elgamal - Elgamal with elliptic curve.
+# Elliptic Curves in python
 # Version 1.0
 # Year 2014
 # Author Alexandre PUJOL <alexandre.pujol.1@etu.univ-amu.fr>
@@ -49,7 +49,7 @@ class tools(object):
    
    """
    def readFile(path):
-      f = open(path, "r")
+      f = open(path, "r", encoding='utf-8')
       filecontent = f.read()
       f.close()
       return filecontent
@@ -69,52 +69,55 @@ class tools(object):
 class key(object):
 
    """ writeKey
-   ELGAMAL, ECDSA
+    Write ELGAMAL and ECDSA public and private key in a file
+    Input :
+     - path (string) key path (a public key will have .pub)
+     - curve (EllipticCurve) The elliptic curve used
+     - key (int or Point) The key
    """
    def writeKey(path, algo, curve, key):
       f = open(path, "w")
       
-      if algo is 'ELGAMAL':
-         if isinstance(key, Point):
-            keytype= 'PUBLIC'
-         elif isinstance(key, int):
-            keytype= 'PRIVATE'
-         else:
-            raise Exception('Writing key : Key type error')
-      
-         #f.write( str(base64.b64encode( str(curve.p).encode('ascii'))) )
-
-         f.write("-----BEGIN " + algo + " " + keytype + " KEY-----\n")
-         f.write("p="+str(curve.p)+"\n")
-         f.write("n="+str(curve.n)+"\n")
-         f.write("a4="+str(curve.a4)+"\n")
-         f.write("a6="+str(curve.a6)+"\n")
-         f.write("r4="+str(curve.r4)+"\n")
-         f.write("r6="+str(curve.r6)+"\n")
-         f.write("gx="+str(curve.gx)+"\n")
-         f.write("gy="+str(curve.gy)+"\n")
-         f.write("r="+str(curve.r)+"\n")
-         
-         if isinstance(key, Point):
-            f.write("Kx="+str(key.x)+"\n")
-            f.write("Ky="+str(key.y)+"\n")
-         elif isinstance(key, int):
-            f.write("K="+str(key)+"\n")
-         else:
-            raise Exception('Writing key : Key type error')
-         
-         f.write("-----END " + algo + " " + keytype + " KEY-----\n")
-      elif algo is 'ECDSA':
-         keytype = 'PRIVATE'
-         f.write("-----BEGIN " + algo + " " + keytype + " KEY-----\n")
-         f.write("-----END " + algo + " " + keytype + " KEY-----\n")
-      else:
+      if algo is not 'ELGAMAL' and algo is not 'ECDSA':
          raise Exception('Writing key : Unrecognized algorithm')
-         
+      
+      if isinstance(key, Point):
+         keytype= 'PUBLIC'
+      elif isinstance(key, int):
+         keytype= 'PRIVATE'
+      else:
+         raise Exception('Writing key : Key type error')
+      
+      #f.write( str(base64.b64encode( str(curve.p).encode('ascii'))) )
+      
+      f.write("-----BEGIN " + algo + " " + keytype + " KEY-----\n")
+      f.write("p=" + str(curve.p) + "\n")
+      f.write("n=" + str(curve.n) + "\n")
+      f.write("a4=" + str(curve.a4) + "\n")
+      f.write("a6=" + str(curve.a6) + "\n")
+      f.write("r4=" + str(curve.r4) + "\n")
+      f.write("r6=" + str(curve.r6) + "\n")
+      f.write("gx=" + str(curve.gx) + "\n")
+      f.write("gy=" + str(curve.gy) + "\n")
+      f.write("r=" + str(curve.r) + "\n")
+      
+      if isinstance(key, Point):
+         f.write("Kx="+str(key.x)+"\n")
+         f.write("Ky="+str(key.y)+"\n")
+      elif isinstance(key, int):
+         f.write("K="+str(key)+"\n")
+      
+      f.write("-----END " + algo + " " + keytype + " KEY-----\n")
       f.close()
 
+
    """ readKey
-   
+    Read ELGAMAL and ECDSA public and private key from a file
+    Input :
+     - path (string) key path
+    Output :
+     - curve (EllipticCurve) The elliptic curve used
+     - key (int or Point) The key
    """
    def readKey(path):
       data = {}
@@ -138,17 +141,15 @@ class key(object):
                               data["gy"],
                               data["r"])
       
-      if algo == 'ELGAMAL':
-         if keytype == 'PUBLIC':
-            key = Point(curve, data["Kx"], data["Ky"])
-         elif keytype == 'PRIVATE':
-            key = data["K"]
-         else:
-            raise Exception('Reading key : Key type error')
-      elif algo == 'ECDSA':
-         print('TODO')
+      #if algo is not 'ELGAMAL' and algo is not 'ECDSA':
+      #   raise Exception('Writing key : Unrecognized algorithm')
+
+      if keytype == 'PUBLIC':
+         key = Point(curve, data["Kx"], data["Ky"])
+      elif keytype == 'PRIVATE':
+         key = data["K"]
       else:
-         raise Exception('Reading key : Unrecognized algorithm')
+         raise Exception('Reading key : Key type error')
          
       f.close()
       return (curve, key)
