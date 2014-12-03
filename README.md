@@ -25,7 +25,7 @@ elgamal --crypt -k <public_key> -i <file> -o <file_encrypted>
 
 Decrypt a file
 ```
-elgamal --decrypt -k <public_key> -i <file_encrypted> -o <file>
+elgamal --decrypt -k <private_key> -i <file_encrypted> -o <file>
 ```
 
 Get the help
@@ -44,10 +44,33 @@ Option like keygen, crypt and decrypt are mandatory. The other option are not ma
 
 ### ECDSA
 
+Generate an elgamal key pair
+```
+ecdsa --keygen -c <elliptic_curve> -o <keys_path>
+```
+
+Sign a file
+```
+ecdsa --sign -k <private_key> -i <file> -o <file_signed>
+```
+
+Verify the signature
+```
+ecdsa --verif -k <public_key> -i <file_signed>
+```
+
 Get the help
 ```
 ecdsa -h
 ```
+
+**WARNING** 
+Option like keygen, sign and verif are mandatory. The other option are not mandatory, the default path are : 
+* Curve : `curves/w256-001.gp`
+* Public key : `keys/ecdsa.pub`
+* Private key : `keys/ecdsa`
+* File : `sample/text`
+* File encrypted : `sample/text.ecdsa`
 
 ### STS
 
