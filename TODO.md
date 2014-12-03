@@ -1,6 +1,6 @@
 # TODO
 
-# Elliptic curve componant
+## Elliptic curve componant
 
 * Diffie - Hellman
 * ElGamal
