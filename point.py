@@ -1,5 +1,5 @@
 import math
-from ec_utils import *
+from ectools import *
 
 class Point(object):
    def __init__(self, curve, x, y, z=False):
@@ -10,7 +10,7 @@ class Point(object):
       #Indicates if point is infinite
       self.z = z
 
-      if not curve.testPoint(x,y,z):
+      if not curve.testPoint(x, y , z):
          raise Exception("The point %s is not on the given curve %s!" % (self, curve))
 
 
@@ -25,15 +25,15 @@ class Point(object):
 
 
    def __eq__(self, other):
-      return (self.curve,self.x,self.y)==(other.curve,other.x,other.y)
+      return (self.curve, self.x, self.y) == (other.curve, other.x, other.y)
 
    def __neg__(self):
       Xq=self.x
       #yq = -Yp -a1*xp -a3
       Yq= (-self.y) % self.curve.p
-      return Point(self.curve,Xq,Yq, False)
+      return Point(self.curve, Xq, Yq, False)
 
-   def __add__(self,Q):
+   def __add__(self, Q):
       if self.curve != Q.curve:
          raise Exception("Can't add points on different curves!")
       Xp= self.x
@@ -45,16 +45,16 @@ class Point(object):
       if Q.isIdeal():
          return self
       if Q == -self:
-         return Point(self.curve,0,1,True)
+         return Point(self.curve, 0, 1, True)
       
       # Careful here it is not a simple division
       # But a modular inversion
       if Xp == Xq:
-         l= ((3*Xp*Xp+self.curve.a4)*modinv(2*Yp,self.curve.p))
+         l= ((3*Xp*Xp + self.curve.a4)*modinv(2*Yp, self.curve.p))
       else:
-         l = (Yp-Yq)*modinv((Xp-Xq)%self.curve.p,self.curve.p)
+         l = (Yp - Yq)*modinv((Xp - Xq)%self.curve.p, self.curve.p)
 
-      Xr= (l*l-Xp-Xq) % self.curve.p
+      Xr= (l*l - Xp - Xq) % self.curve.p
       Yr= (l*Xp - Yp -l*Xr) % self.curve.p
    
       return Point(self.curve, Xr, Yr)
@@ -64,13 +64,13 @@ class Point(object):
          raise Exception("Can't scale a point by something which isn't an int!")
 
       if n == 0:
-         return Point(self.curve,0,1,True)
+         return Point(self.curve, 0, 1, True)
 
       if n == 1:
          return self
       
-      Q = Point(self.curve,0,1,True)
-      i = 1 << (int(math.log(n,2)))
+      Q = Point(self.curve, 0, 1, True)
+      i = 1 << (int(math.log(n, 2)))
       while i > 0:
          Q = Q + Q
          if n & i == i:
@@ -87,7 +87,7 @@ class Point(object):
       
       for i in range(0,r):
          pi = factors[2*i]
-         ei = factors[2*i+1]
+         ei = factors[2*i + 1]
          m = m/(pi^ei)
          Q = m*P
          
