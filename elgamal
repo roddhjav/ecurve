@@ -1,0 +1,164 @@
+#!/usr/bin/env python
+#
+# elgamal - Elgamal with elliptic curve.
+# Version 1.0
+# Year 2014
+# Author Alexandre PUJOL <alexandre.pujol.1@etu.univ-amu.fr>
+# Author Maxime CHEMIN <maxime.chemin@etu.univ-amu.fr>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License.
+#
+
+import argparse
+from tools import *
+from elliptic import *
+from elgamal import *
+
+
+""" Generate Elgamal keys
+ Input :
+ - Curve (default : curves/w256-001.gp)
+ Output :
+ - Public key (default : keys/elgamal.pub)
+ - Private key (default : keys/elgamal)
+"""
+def Keygen():
+   print(":: Keygen")
+   
+   if results.key is not False or results.input is not False:
+      raise Exception('Argument error')
+   
+   if results.loadcurve is False:
+      results.loadcurve = 'curves/w256-001.gp'
+
+   if results.output is False:
+      results.output = 'keys/elgamal'
+      
+   print(" Load curve : " + results.loadcurve)
+   curve = tools.loadCurve(results.loadcurve)
+   
+   elgamal = Elgamal(curve)
+   
+   print(" Generate keys")
+   (publickey, privatekey) = elgamal.keygen()
+   
+   print(" Write keys")
+   key.writeKey(results.output+'.pub', 'ELGAMAL', curve, publickey)
+   key.writeKey(results.output, 'ELGAMAL', curve, privatekey)
+
+
+
+""" Crypt message
+ Input :
+ - Public key (default : keys/elgamal.pub)
+ - Message (default : sample/text)
+ Output :
+ - Encoded message (default : sample/text.elgamal)
+""" 
+def Crypt():
+   print(":: Crypt")
+   
+   if results.loadcurve is not False:
+      raise Exception('Argument error')
+   
+   if results.key is False:
+      results.key = 'keys/elgamal.pub'
+   
+   if results.input is False:
+      results.input = 'sample/text'
+
+   if results.output is False:
+      results.output = 'sample/text.elgamal'
+      
+   print(" Read public key : " + results.key)
+   (curve, publickey) = key.readKey(results.key)
+   
+   print(" Read message : " + results.input)
+   m = tools.readFile(results.input)
+      
+   print(" Crypt the message")
+   elgamal = Elgamal(curve)
+   (c1, c2) = elgamal.crypt(publickey, m)    
+   
+   print(" Write the encrypted message : " + results.output)
+   c = str(c1) + "\n" + str(c2.x) + "\n" + str(c2.y)
+   tools.writeFile(results.output, c)
+
+
+
+""" Decrypt elgamal message
+ Input :
+ - Private key (default : keys/elgamal)
+ - Encoded message (default : sample/text.elgamal)
+ Output :
+ - Message (default : sample/text.decoded)
+"""
+def Decrypt():
+   print(":: Decrypt")
+   
+   if results.loadcurve is not False:
+      raise Exception('Argument error')
+      
+   if results.key is False:
+      results.key = 'keys/elgamal'
+   
+   if results.input is False:
+      results.input = 'sample/text.elgamal'
+
+   if results.output is False:
+      results.output = 'sample/text.decoded'
+      
+   print(" Read private key : " + results.key)
+   (curve, privatekey) = key.readKey(results.key)
+   
+   print(" Read encrypted message : " + results.input)
+   c = tools.readFile(results.input)
+   c1 = int(c.split('\n')[0])
+   c2 = Point(curve, int(c.split('\n')[1]), int(c.split('\n')[2]))
+   
+   print(" Decrypt the message")
+   elgamal = Elgamal(curve)
+   m = elgamal.decrypt(privatekey, c1, c2)
+   
+   print(" Write the decrypted message")
+   tools.writeFile(results.output, str(m))
+
+
+parser = argparse.ArgumentParser(description='Elgamal with elliptic curve.')
+parser.add_argument( '-K','--keygen',
+                     action='store_const', dest='prgm', const='keygen',
+                     help='Generate key')
+parser.add_argument( '-C', '--crypt', 
+                     action='store_const', dest='prgm', const='crypt',
+                     help='crypt')
+parser.add_argument( '-D', '--decrypt', 
+                     action='store_const', dest='prgm', const='decrypt',
+                     help='decrypt')
+parser.add_argument( '-c', '--curve',
+                     action='store', default=False, dest='loadcurve',
+                     help='Load  curve')
+parser.add_argument( '-k', '--key',
+                     action='store', default=False, dest='key',
+                     help='Load  key')                    
+parser.add_argument( '-i', '--input',
+                     action='store', default=False, dest='input',
+                     help='Input')
+parser.add_argument( '-o', '--output',
+                     action='store', default=False, dest='output',
+                     help='Output')
+results = parser.parse_args()
+
+
+if not results.prgm:
+   raise Exception('Argument error')
+
+if results.prgm is 'keygen':
+   Keygen()
+
+elif results.prgm is 'crypt':
+   Crypt()
+
+elif results.prgm is 'decrypt':
+   Decrypt()
+   
