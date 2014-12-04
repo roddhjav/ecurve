@@ -17,3 +17,4 @@
 
 * Create buffer to read, write and encode the data
 * Read and write the file like binary file and not like text file
+* Use os.urandom(n) instead of random.getrandombits(n) because the second is not suitable for cryptographic purposes 
