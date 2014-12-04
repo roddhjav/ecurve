@@ -10,6 +10,7 @@
 * STS 
    - https://notendur.hi.is/pgg/Handbook%20of%20Applied%20Cryptography.pdf pages 519 to 520
    - http://en.wikipedia.org/wiki/Station-to-Station_protocol
+   - Create our own certification authority
 * We should maybe switch from using variables directly to using getters instead of self.curve.n use self.curve.getOrder()
 
 ## Global feature
