@@ -17,4 +17,12 @@
 
 * Create buffer to read, write and encode the data
 * Read and write the file like binary file and not like text file
-* Use os.urandom(n) instead of random.getrandombits(n) because the second is not suitable for cryptographic purposes 
+* Use os.urandom(n) instead of random.getrandombits(n) because the second is not suitable for cryptographic purposes
+* Enable the user to choose security level (see below)
+
+| level  |sym  |asym   |ec  |hash  |
+|:-----: |:---:|:----: |:--:|:----:|
+|5       |96   | 1776  |192 |192   |
+|6       |112  | 2432  |224 |224   |
+|7       |128  | 3248  |256 |256   |
+|8       |256  | 15424 |512 |512   |
