@@ -123,8 +123,8 @@ class key(object):
       data = {}
       f = open(path, "r")
       lines = f.readlines()
-      algo = lines[0].split(' ')[1]
-      keytype = lines[0].split(' ')[2]
+      algo = lines[0].split(' ')[1]    # algo = ELGAMAL or ECDSA
+      keytype = lines[0].split(' ')[2] # keytype = PUBLIC or PRIVATE
       lines = lines[1:len(lines)-1]
       
       for line in lines:
