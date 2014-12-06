@@ -29,14 +29,14 @@ def Keygen():
    if results.key is not False or results.input is not False:
       raise Exception('Argument error')
    
-   if results.loadcurve is False:
-      results.loadcurve = 'curves/w256-001.gp'
+   if results.curve is False:
+      results.curve = 'curves/w256-001.gp'
 
    if results.output is False:
       results.output = 'keys/ecdsa'
       
-   print(" Load curve : " + results.loadcurve)
-   curve = tools.loadCurve(results.loadcurve)
+   print(" Load curve : " + results.curve)
+   curve = tools.loadCurve(results.curve)
    
    ecdsa = ECDSA(curve)
    
@@ -59,7 +59,7 @@ def Keygen():
 def Sign():
    print(":: Sign")
    
-   if results.loadcurve is not False:
+   if results.curve is not False:
       raise Exception('Argument error')
       
    if results.key is False:
@@ -96,7 +96,7 @@ def Sign():
 def Verif():
    print(":: Verif")
    
-   if results.loadcurve is not False or results.output is not False:
+   if results.curve is not False or results.output is not False:
       raise Exception('Argument error')
       
    if results.key is False:
@@ -137,7 +137,7 @@ parser.add_argument( '-V', '--verif',
                      action='store_const', dest='prgm', const='verif',
                      help='Verify the signature')
 parser.add_argument( '-c', '--curve',
-                     action='store', default=False, dest='loadcurve',
+                     action='store', default=False, dest='curve',
                      help='Load  curve')
 parser.add_argument( '-k', '--key',
                      action='store', default=False, dest='key',
@@ -148,6 +148,8 @@ parser.add_argument( '-i', '--input',
 parser.add_argument( '-o', '--output',
                      action='store', default=False, dest='output',
                      help='Output')
+parser.add_argument( '-v', '--version', 
+                     action='version', version='%(prog)s 1.0')
 results = parser.parse_args()
 
 if results.prgm is 'keygen':
