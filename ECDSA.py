@@ -7,8 +7,8 @@ from ectools import *
 
 class ECDSA(object):
    """ ECDSA encryption
-   - self.curve (EllipticCurve) The elliptic curve used
-   - self.generator (Point) A generator of the curve
+    - self.curve (EllipticCurve) The elliptic curve used
+    - self.generator (Point) A generator of the curve
    """
    def __init__(self, curve):
       self.curve = curve
@@ -88,21 +88,4 @@ class ECDSA(object):
          return True
       else:
          return False
-"""
-1. Use one of the routines in Appendix A.2 to generate (k, k^1),
-a per-message secret number and its inverse modulo n.
-Since n is prime, the output will be invalid only if there is a failure in the R
-
-2.Compute the elliptic curve point R=kG= (xR, yR) using EC scalar
-multiplication (see [Routines]), where G is the base point included in
-the set of domain parameters.
-
-3.Compute r=xR mod n.Ifr= 0, then return to Step 1.
-
-4.Use the selected hash function to compute H=Hash(M)
-
-5.Convert the bit string H to an integer e as described in Appendix
-
-6.Compute s=(k^1*(e+d*r)) mod n. if s=0, return to step 1
-7. return (r, s)
-"""
+         
