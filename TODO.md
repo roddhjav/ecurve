@@ -20,13 +20,16 @@
     - http://www.java2s.com/Tutorial/Python/0240__File/Readbytesintoabuffer.htm
 * Read and write the file like binary file and not like text file
 * Use os.urandom(n) instead of random.getrandombits(n) because the second is not suitable for cryptographic purposes
+* In The README.md add comment about security purpose (security level and curves origin)
 * Enable the user to choose security level (see below)
 
-    | Level | Sym | Asym  | EC  | Hash |
-    |:-----:|:---:|:-----:|:---:|:----:|
-    | 5     | 96  | 1776  | 192 | 192  |
-    | 6     | 112 | 2432  | 224 | 224  |
-    | 7     | 128 | 3248  | 256 | 256  |
-    | 8     | 256 | 15424 | 512 | 512  |
-   
-* In The README.md add comment about security purpose (security level and curves origin)
+    | Level | Protection                                                        | Sym | Asym  | EC  | Hash |
+    |:-----:|:-----------------------------------------------------------------:|:---:|:-----:|:---:|:----:|
+    | 1     | Attacks in ”real-time” by individuals                             | 32  |       |     |      |
+    | 2     | Very short-term protection                                        | 64  | 816   | 128 | 128  |
+    | 3     | Short-term protection against medium organizations                | 72  | 1008  | 144 | 144  |
+    | 4     |                                                                   | 80  | 1248  | 160 | 160  | 
+    | 5     | Legacy standard level                                             | 96  | 1776  | 192 | 192  |
+    | 6     | Medium-term protection                                            | 112 | 2432  | 224 | 224  |
+    | 7     | Long-term protection (minimum level recommended)                  | 128 | 3248  | 256 | 256  |
+    | 8     | ”Foreseeable future”, Good protection against government agencies | 256 | 15424 | 512 | 512  |
