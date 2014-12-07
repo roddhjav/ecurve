@@ -127,7 +127,7 @@ def Share():
    gy = Point(curve, int(gy_str_x), int(gy_str_y))
    gxy = dh.sharedsecret(x, gy)
    
-   print(" Write shared secret in" + results.output)
+   print(" Write shared secret in " + results.output)
    key.writeKey(results.output, 'DIFFIEHELLMAN', curve, gxy)
    
 
