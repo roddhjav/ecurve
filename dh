@@ -1,0 +1,169 @@
+#!/usr/bin/env python
+#
+# dh - Diffie Hellman with elliptic curve.
+# Version 1.0
+# Year 2014
+# Author Alexandre PUJOL <alexandre.pujol.1@etu.univ-amu.fr>
+# Author Maxime CHEMIN <maxime.chemin@etu.univ-amu.fr>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License.
+#
+
+import argparse
+import socket
+from elliptic import *
+from tools import *
+from diffiehellman import *
+
+
+""" Generate Diffie Hellman keys
+ Input :
+ - Curve (default : curves/w256-001.gp)
+ Output :
+ - Private key (default : keys/dh)
+"""
+def Keygen():
+   print(":: Keygen")
+   
+   if results.key is not False or results.host is not False :
+      raise Exception('Argument error')
+   if results.host is not False or results.port is not False:
+      raise Exception('Argument error')
+      
+   if results.curve is False:
+      results.curve = 'curves/w256-001.gp'
+
+   if results.output is False:
+      results.output = 'keys/dh'
+      
+   print(" Load curve : " + results.curve)
+   curve = tools.loadCurve(results.curve)
+   
+   dh = Diffiehellman(curve)
+   
+   print(" Generate keys")
+   x = dh.keygen()
+   
+   print(" Write keys" + results.output)
+   key.writeKey(results.output, 'DIFFIEHELLMAN', curve, x)
+   
+   
+""" Share
+ Input :
+ - Private key (default : keys/dh)
+ - Host (default : localhost)
+ - Host's port (default : 12800)
+ Output :
+ - Shared secret (default : keys/dh.shared)
+"""
+def Share():
+   print(":: Share key")
+   
+   if results.curve is not False:
+      raise Exception('Argument error')
+      
+   if results.key is False:
+      results.key = 'keys/dh'
+      
+   if results.host is False:
+      results.host = 'localhost'
+      
+   if results.port is False:
+      results.port = 12800
+   else:
+      results.port = int(results.port)
+      
+   if results.output is False:
+      results.output = 'keys/dh.shared'
+            
+   print(" Read privatekey key : " + results.key)
+   (curve, x) = key.readKey(results.key)
+   
+   dh = Diffiehellman(curve)
+   gx = dh.secret(x)
+   gx_bytes = (str(gx.x) + "," + str(gx.y)).encode()
+   
+   # TODO : For now we suppose Alice and Bob has got the same curve. 
+   #        But we will have to send curve with socket too.
+   # TODO : We can optimise this. Less code for same prgm
+   if results.server is True:
+      # There is no server yet. We create it
+      server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+      server.bind(('', results.port))
+      server.listen(1)
+      
+      print(" Server started")
+      print(" Waiting for client connection...")
+      (server_to_client, address) = server.accept()
+      
+      print(" Server connected to : " + str(address))
+      print(" Sending secret to client")
+      server_to_client.send(gx_bytes)
+      
+      print(" Getting client's secret")
+      gy_bytes = server_to_client.recv(1024)
+      
+      print(" Closing connection")
+      server_to_client.close()
+      server.close()
+   else:
+      # There is a server. We connect to it
+      client_to_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+      client_to_server.connect((results.host, results.port))
+      print(" Connected to : " + results.host + " on port " + str(results.port))
+
+      print(" Getting server's secret")
+      gy_bytes = client_to_server.recv(1024)
+      
+      print(" Sending secret to server")
+      client_to_server.send(gx_bytes)
+      
+      print(" Closing connection")
+      client_to_server.close()
+      
+   gy_str = gy_bytes.decode()
+   (gy_str_x, gy_str_y) = gy_str.split(',')
+   gy = Point(curve, int(gy_str_x), int(gy_str_y))
+   gxy = dh.sharedsecret(x, gy)
+   
+   print(" Write shared secret in" + results.output)
+   key.writeKey(results.output, 'DIFFIEHELLMAN', curve, gxy)
+   
+
+parser = argparse.ArgumentParser(description='Diffie Hellman with elliptic curve.')
+parser.add_argument( '-K','--keygen',
+                     action='store_const', dest='prgm', const='keygen',
+                     help='Generate Diffie Hellman private key')
+parser.add_argument( '-S', '--share',
+                     action='store_const', dest='prgm', const='share',
+                     help='Share key with an other computer')
+parser.add_argument( '-c', '--curve',
+                     action='store', default=False, dest='curve',
+                     help='Load a specific elliptic curve ')
+parser.add_argument( '-k', '--key',
+                     action='store', default=False, dest='key',
+                     help='Load  key')
+parser.add_argument( '--host',
+                     action='store', default=False, dest='host',
+                     help='Hostname or IP of the other computer')
+parser.add_argument( '--port',
+                     action='store', default=False, dest='port',
+                     help='Hostname\'s port')
+parser.add_argument( '-o', '--output',
+                     action='store', default=False, dest='output',
+                     help='Output file')
+parser.add_argument( '-s', '--server',
+                     action='store_true', default=False, dest='server',
+                     help='Create server connection')
+parser.add_argument( '-v', '--version', 
+                     action='version', version='%(prog)s 1.0')
+results = parser.parse_args()
+
+if results.prgm is 'keygen':
+   Keygen()
+elif results.prgm is 'share':
+   Share()
+else:
+   raise Exception('Argument error')
+   

@@ -2,50 +2,43 @@ import math
 import random
 from elliptic import *
 from point import *
-import socket
 
-#Add exchange over network
-#Check if random function is truly random
-# TODO : Add comment about var
-class DH(object):
-   def __init__(self, curve, name):
+class Diffiehellman(object):
+   """ Diffie Hellman
+    - self.curve (EllipticCurve) The elliptic curve used
+    - self.generator (Point) A generator of the curve
+   """
+   def __init__(self, curve):
       self.curve = curve
-      self.name = name
-      bits = int(math.log(curve.n,2))
+      self.generator = Point(self.curve, self.curve.gx, self.curve.gy)
 
-      self.a = random.getrandbits(bits-1) # See if it is a secure random
+   """ keygen
+    Private Diffie Hellman key generation
+    Output :
+    - x (int) Random private DH secret
+   """
+   def keygen(self):
+      bits = int(math.log(self.curve.n, 2))
+      return random.getrandbits(bits - 1)
       
-      assert self.a < self.curve.n, "Error"
+   """ secret
+    
+    Intput :
+    - x (int)
+    Output :
+    - gx (Point) 
+   """
+   def secret(self, x):
+       return x*self.generator
+       
+   """ sharedsecret
+    Compute the DH shared secret
+    Intput :
+    - x (int)
+    - gy (Point)
+    Output :
+    - gxy (Point) g^yx = (g^y)^x
+   """
+   def sharedsecret(self, x, gy):
+      return x*gy
       
-      self.g = Point(self.curve, self.curve.gx,  self.curve.gy)
-      self.ga = self.a*self.g
-      
-      
-   def setkey(self, gb):
-      self.gba = self.a*gb
-   
-   def proxy_key(self,IP,port):
-      serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-      serversocket.bind((IP,port))
-      serversocket.listen(1)
-      
-      connection, address = serversocket.accept()
-      buf = connection.recv(256)
-      
-      if len(buf) > 0:
-         print buf
-#need a server that acts as and interface between the two clients
-#most likely that server will be implemented in the test programm
-   def exchange_key(self,IP,port):
-      clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-      clientsocket.connect((IP,port))
-      clientsocket.send(str(self.ga[0])+","+str(self.ga[1]))
-      reply = clientsocket.recv(1024)
-      (x,y) = reply.split(',')
-      
-      gb = Point(self.curve,int(x), int(y))
-      
-      gab = self.a*gb
-      
-      print str(gab)
-   
