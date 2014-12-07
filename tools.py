@@ -69,20 +69,24 @@ class tools(object):
 class key(object):
 
    """ writeKey
-    Write ELGAMAL and ECDSA public and private key in a file
+    Write ELGAMAL, ECDSA or DIFFIEHELLMAN public and private key in a file
     Input :
      - path (string) key path (a public key will have .pub)
+     - algo (string) algo type : ELGAMAL or ECDSA or DiffieHellman
      - curve (EllipticCurve) The elliptic curve used
      - key (int or Point) The key
    """
    def writeKey(path, algo, curve, key):
       f = open(path, "w")
       
-      if algo is not 'ELGAMAL' and algo is not 'ECDSA':
+      if algo is not 'ELGAMAL' and algo is not 'ECDSA' and algo is not 'DIFFIEHELLMAN':
          raise Exception('Writing key : Unrecognized algorithm')
       
       if isinstance(key, Point):
-         keytype= 'PUBLIC'
+         if algo is 'DIFFIEHELLMAN':
+            keytype = 'SHAREDSECRET'
+         else:
+            keytype= 'PUBLIC'
       elif isinstance(key, int):
          keytype= 'PRIVATE'
       else:
@@ -112,7 +116,7 @@ class key(object):
 
 
    """ readKey
-    Read ELGAMAL and ECDSA public and private key from a file
+    Read ELGAMAL, ECDSA or DIFFIEHELLMAN public and private key from a file
     Input :
      - path (string) key path
     Output :
@@ -123,7 +127,7 @@ class key(object):
       data = {}
       f = open(path, "r")
       lines = f.readlines()
-      algo = lines[0].split(' ')[1]    # algo = ELGAMAL or ECDSA
+      algo = lines[0].split(' ')[1]    # algo = ELGAMAL or ECDSA or DH
       keytype = lines[0].split(' ')[2] # keytype = PUBLIC or PRIVATE
       lines = lines[1:len(lines)-1]
       
@@ -144,7 +148,7 @@ class key(object):
       #if algo is not 'ELGAMAL' and algo is not 'ECDSA':
       #   raise Exception('Writing key : Unrecognized algorithm')
 
-      if keytype == 'PUBLIC':
+      if keytype == 'PUBLIC' or keytype == 'SHAREDSECRET':
          key = Point(curve, data["Kx"], data["Ky"])
       elif keytype == 'PRIVATE':
          key = data["K"]
