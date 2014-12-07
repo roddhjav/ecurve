@@ -1,5 +1,5 @@
 #
-# elgamal - Elgamal with elliptic curve.
+# Elliptic Curves in python
 # Version 1.0
 # Year 2014
 # Author Alexandre PUJOL <alexandre.pujol.1@etu.univ-amu.fr>
