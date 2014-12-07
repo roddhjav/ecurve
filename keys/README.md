@@ -9,7 +9,7 @@ It is the default directory for all the keys
 -----BEGIN DIFFIEHELLMAN PRIVATE KEY-----
 ```
 
-**Content**
+**Contents**
 * The curve 
 * g^xy as shared secret. Its a point of the curve
 
@@ -19,7 +19,7 @@ It is the default directory for all the keys
 -----BEGIN DIFFIEHELLMAN SHAREDSECRET KEY-----
 ```
 
-**Content**
+**Contents**
 * The curve 
 * g^xy as shared secret. Its a point of the curve
 
@@ -30,7 +30,7 @@ It is the default directory for all the keys
 -----BEGIN ELGAMAL PRIVATE KEY-----
 ```
 
-**Content**
+**Contents**
 * The curve 
 * Private key. Its a int
 
@@ -51,7 +51,7 @@ It is the default directory for all the keys
 -----BEGIN ECDSA PRIVATE KEY-----
 ```
 
-**Content**
+**Contents**
 * The curve 
 * Private key. Its a int
 
@@ -61,7 +61,7 @@ It is the default directory for all the keys
 -----BEGIN ECDSA PUBLIC KEY-----
 ```
 
-**Content**
+**Contents**
 * The curve 
 * Public key. Its a point of the curve
 
@@ -70,6 +70,7 @@ It is the default directory for all the keys
 A public ECDSA key :
 * The curve : `(p, n, a4, a6, r4, r6, gx, gy, r)`
 * The key : `(Kx, Ky, true)`
+
 ```
 -----BEGIN ECDSA PUBLIC KEY-----
 p=8884933102832021670310856601112383279507496491807071433260928721853918699951
