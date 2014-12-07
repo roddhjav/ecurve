@@ -1,15 +1,51 @@
 # Elliptic Curves in python
 
-## Usage
-The program provide 4 softwares with similar command line usage
+## Description
+
+That software provide four security primitives class ;
+* Diffie Hellman : `diffiehellman.py`
+* ElGamal : `elgamal.py`
+* ECDSA : `ECDSA.py`
+* STS : `STS.py`
+
+In more there is 4 front-end for an immediate usage :
+* Diffie Hellman : `dh`
+* ElGamal : `elgamal`
+* ECDSA : `ecdsa`
+* STS : `sts`
+
+## Usages
 
 ### Diffie Hellman
 
 
-Get the help
+Generate Diffie Hellman key
+```
+dh --keygen -c <elliptic_curve> -o <key_path>
+```
+
+Create connection with a computer and share DH's secret.
+
+```
+dh --share --key <key_path> --output <dh_shared_secret_path> --port <port> --host <hostname>
+```
+**WARNING** The first computer connected must create the server with `--server`
+```
+dh --share --key <key_path> --output <dh_shared_secret_path> --port <port> --host <hostname> --server
+```
+
+Get the help :
 ```
 dh -h
 ```
+
+**WARNING** 
+Options like `--keygen` and `--share` are mandatory. The other option are not mandatory, the default path are : 
+* Curve : `curves/w256-001.gp`
+* Private secret : `keys/dh`
+* Shared secret : `keys/dh.shared`
+* Hostname : `localhost`
+* Port : `12800`
 
 ### Elgamal
 
@@ -34,7 +70,7 @@ elgamal -h
 ```
 
 **WARNING** 
-Option like keygen, crypt and decrypt are mandatory. The other option are not mandatory, the default path are : 
+Options like `--keygen`, `--crypt` and `--decrypt` are mandatory. The other option are not mandatory, the default path are : 
 * Curve : `curves/w256-001.gp`
 * Public key : `keys/elgamal.pub`
 * Private key : `keys/elgamal`
@@ -65,7 +101,7 @@ ecdsa -h
 ```
 
 **WARNING** 
-Option like keygen, sign and verif are mandatory. The other option are not mandatory, the default path are : 
+Options like `--keygen`, `--sign` and `--verif` are mandatory. The other option are not mandatory, the default path are : 
 * Curve : `curves/w256-001.gp`
 * Public key : `keys/ecdsa.pub`
 * Private key : `keys/ecdsa`
