@@ -15,7 +15,7 @@ import socket
 from elliptic import *
 from tools import *
 from STS import *
-
+import struct
 
 """ Generate STS key (same than DH key)
  Input :
@@ -91,6 +91,8 @@ def Share():
    (curve2, ecdsa_publickey) = key.readKey(ecdsa_keys + ".pub")
    (curve3, ecdsa_privatekey) = key.readKey(ecdsa_keys)
    if curve != curve2 or curve != curve3:
+      print (curve.p,curve.n,curve.a4,curve.a6) == (curve2.p,curve2.n,curve2.a4,curve2.a6)
+
       raise Exception('ECDSA keys are not on the same curve than DH secret')
    certificat_bytes = (str(ecdsa_publickey.x)+","+str(ecdsa_publickey.y)).encode()
    
@@ -108,11 +110,11 @@ def Share():
       (server_to_client, address) = server.accept()
       
       print(" Server connected to : " + str(address))
-      print(" Sending secret to client")
+      print(" Sending secret to client->gx")
       server_to_client.send(gx_bytes)
       
-      print(" Getting client's secret")
-      gy_bytes = server_to_client.recv(1024)
+      print(" gy<-Getting client's secret")
+      gy_bytes = server_to_client.recv(4096)
       
       print(" Compute : Signed and encrypt it")
       gy_str = gy_bytes.decode()
@@ -121,17 +123,21 @@ def Share():
       (K, encrypted, iv) = sts.sharedsecret(ecdsa_privatekey, x, gx, gy)
       
       print(" Sending to client :")
-      print("  - Public key certificate")
+      print("  - Public key certificate->cert")
       server_to_client.send(certificat_bytes)
-      print("  - Signature encrypted")
-      server_to_client.send(encrypted)
-      server_to_client.send(iv)
+      print("  - Signature encrypted->sign")
+      length = struct.pack('!I',len(encrypted))
+      server_to_client.send(length+encrypted)
       
-      print(" Getting from the client :")
+      length = struct.pack('!I',len(iv))
+      res = server_to_client.send(length+iv)
+      print (len(iv))
+      print(res)
+      print(" <-Getting from the client :")
       print("  - Public key certificate")
-      certificat_bytes = server_to_client.recv(1024)
+      certificat_bytes = server_to_client.recv(4096)
       print("  - Signature encrypted")
-      signed_encrypted_bytes = server_to_client.recv(1024)
+      signed_encrypted_bytes = server_to_client.recv(4096)
       
       print(" Closing connection")
       server_to_client.close()
@@ -156,14 +162,22 @@ def Share():
 
       print(" Getting from the server :")
       print("  - Public key certificate")
-      certificat_bytes = client_to_server.recv(1024)
+      certificat_bytes = client_to_server.recv(4096)
       print("  - Signature encrypted")
-      encrypted = client_to_server.recv(1024)
-      iv = client_to_server.recv(1024)
-            
+      #Get size of the message
+      l = client_to_server.recv(4)
+      l_buff = struct.unpack('!I',l)[0]
+      
+      encrypted = client_to_server.recv(l_buff)
+      
+      l = client_to_server.recv(4)
+      l_buff = struct.unpack('!I',l)[0]
+      iv = client_to_server.recv(l_buff)
+      
       print(" Sending to the server :")
       print("  - Public key certificate")
-      client_to_server.send(certificat_bytes)
+      res = client_to_server.send(certificat_bytes)
+
       print("  - Signature encrypted")
       client_to_server.send(encrypted)
       client_to_server.send(iv)
@@ -173,10 +187,9 @@ def Share():
    
       
    print(" Verification")
-   raise
    
    print(" Write shared secret in " + arg.output)
-   key.writeKey(arg.output, 'DIFFIEHELLMAN', curve, gxy)
+   #key.writeKey(arg.output, 'DIFFIEHELLMAN', curve, gxy)
    
 
 parser = argparse.ArgumentParser(description='Diffie Hellman with elliptic curve.')

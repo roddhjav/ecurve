@@ -9,7 +9,7 @@ from Crypto.Cipher import AES
 from Crypto.Random import random
 from Crypto import Random
 
-# TODO : Faire hériter STS de DH
+#TODO : Make STS inherit DH
 class STS(object):
    """ STS
     - self.curve (EllipticCurve) The elliptic curve used
@@ -26,6 +26,7 @@ class STS(object):
    """
    def keygen(self):
       bits = int(math.log(self.curve.n, 2))
+      
       return random.getrandbits(bits - 1)
       
    """ secret
