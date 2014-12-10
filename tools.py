@@ -145,8 +145,8 @@ class key(object):
                               data["gy"],
                               data["r"])
       
-      #if algo is not 'ELGAMAL' and algo is not 'ECDSA':
-      #   raise Exception('Writing key : Unrecognized algorithm')
+      if algo != 'ELGAMAL' and algo != 'ECDSA' and algo != 'DIFFIEHELLMAN':
+         raise Exception('Reading key : Unrecognized algorithm')
 
       if keytype == 'PUBLIC' or keytype == 'SHAREDSECRET':
          key = Point(curve, data["Kx"], data["Ky"])
