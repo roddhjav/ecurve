@@ -45,7 +45,7 @@ class EllipticCurve(object):
     Return a string with the curve paramaters
    """
    def __str__(self):
-      return ' y^2 = x^3 + a4x +a6\n a4 = %s\n a6 =%s\n p = %s\n n = %s' % (self.a4, self.a6, self.p, self.n)
+      return ' y^2 = x^3 + a4x + a6\n a4 = %s\n a6 = %s\n p = %s\n n = %s' % (self.a4, self.a6, self.p, self.n)
 
    """ repr
     Return a string with the curve paramaters
