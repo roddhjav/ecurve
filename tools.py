@@ -24,6 +24,7 @@ class tools(object):
    """ loadCurve
    
    """
+   @staticmethod
    def loadCurve(path):
       data = {}
       f = open(path, "r")
@@ -48,6 +49,7 @@ class tools(object):
    """ readFile
    
    """
+   @staticmethod
    def readFile(path):
       f = open(path, "r", encoding='utf-8')
       filecontent = f.read()
@@ -57,6 +59,7 @@ class tools(object):
    """ writeFile
    
    """ 
+   @staticmethod
    def writeFile(path, content):
       f = open(path, "w")
       f.write(content)
@@ -76,6 +79,7 @@ class key(object):
      - curve (EllipticCurve) The elliptic curve used
      - key (int or Point) The key
    """
+   @staticmethod
    def writeKey(path, algo, curve, key):
       f = open(path, "w")
       
@@ -87,7 +91,7 @@ class key(object):
             keytype = 'SHAREDSECRET'
          else:
             keytype= 'PUBLIC'
-      elif isinstance(key, int):
+      elif isinstance(key, int) or isinstance(key, long):
          keytype= 'PRIVATE'
       else:
          raise Exception('Writing key : Key type error')
@@ -108,7 +112,7 @@ class key(object):
       if isinstance(key, Point):
          f.write("Kx="+str(key.x)+"\n")
          f.write("Ky="+str(key.y)+"\n")
-      elif isinstance(key, int):
+      elif isinstance(key, int) or isinstance(key, long):
          f.write("K="+str(key)+"\n")
       
       f.write("-----END " + algo + " " + keytype + " KEY-----\n")
@@ -123,6 +127,7 @@ class key(object):
      - curve (EllipticCurve) The elliptic curve used
      - key (int or Point) The key
    """
+   @staticmethod
    def readKey(path):
       data = {}
       f = open(path, "r")
