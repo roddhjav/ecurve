@@ -63,4 +63,7 @@ class EllipticCurve(object):
    """
    def __eq__(self, other):
       return (self.p, self.n, self.a4, self.a6) == (other.p, other.n, other.a4, other.a6)
+   
+   def __ne__(self, other):
+      return not (self == other)
       
