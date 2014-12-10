@@ -65,6 +65,9 @@ def Share():
       
    if arg.key is False:
       arg.key = 'keys/sts'
+   
+   if arg.cert is False:
+      arg.cert = 'keys/ecdsa'
       
    if arg.host is False:
       arg.host = 'localhost'
@@ -86,14 +89,13 @@ def Share():
    gx = sts.secret(x)
    gx_bytes = (str(gx.x) + "," + str(gx.y)).encode()
    
-   ecdsa_keys = 'keys/ecdsa' # TODO : Add an arg for that
-   print(" Read ECDSA keys (certificat) : " + ecdsa_keys + ".pub")
-   (curve2, ecdsa_publickey) = key.readKey(ecdsa_keys + ".pub")
-   (curve3, ecdsa_privatekey) = key.readKey(ecdsa_keys)
+   print(" Read ECDSA keys (certificat) : " + arg.cert + ".pub")
+   (curve2, ecdsa_publickey) = key.readKey(arg.cert + ".pub")
+   (curve3, ecdsa_privatekey) = key.readKey(arg.cert)
    if curve != curve2 or curve != curve3:
       print (curve.p,curve.n,curve.a4,curve.a6) == (curve2.p,curve2.n,curve2.a4,curve2.a6)
-
       raise Exception('ECDSA keys are not on the same curve than DH secret')
+      
    certificat_bytes = (str(ecdsa_publickey.x)+","+str(ecdsa_publickey.y)).encode()
    
    # TODO : For now we suppose Alice and Bob has got the same curve. 
@@ -186,8 +188,14 @@ def Share():
    
       
    print(" Verification")
+   print("x         : " + str(x))
+   print("gx        : " + str(gx))
+   print("gy        : " + str(gy))
+   print("iv        : " + str(iv))
+   print("encrypted : " + str(encrypted))
+   print("certificat: " + str(certificat_bytes))
    
-   print(" Write shared secret in " + arg.output)
+   #print(" Write shared secret in " + arg.output)
    #key.writeKey(arg.output, 'DIFFIEHELLMAN', curve, gxy)
    
 
@@ -204,6 +212,9 @@ parser.add_argument( '-c', '--curve',
 parser.add_argument( '-k', '--key',
                      action='store', default=False, dest='key',
                      help='Load  key')
+parser.add_argument( '-t', '--cert',
+                     action='store', default=False, dest='cert',
+                     help='Load certificat')
 parser.add_argument( '--host',
                      action='store', default=False, dest='host',
                      help='Hostname or IP of the other computer')
