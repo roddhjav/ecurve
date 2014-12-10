@@ -54,7 +54,7 @@ def Keygen():
  - Private key (default : keys/ecdsa)
  - Message (default : sample/text)
  Output :
- - Signed message (default : sample/text.ecdsa)
+ - Signed message (default : sample/text.signed)
 """
 def Sign():
    print(":: Sign")
@@ -69,7 +69,7 @@ def Sign():
       results.input = 'sample/text'
       
    if results.output is False:
-      results.output = 'sample/text.ecdsa'
+      results.output = 'sample/text.signed'
       
    print(" Read privatekey key : " + results.key)
    (curve, privatekey) = key.readKey(results.key)
@@ -83,7 +83,7 @@ def Sign():
    (r, s) = ecdsa.sign(privatekey, m)    
    
    print(" Write the signed message : " + results.output)
-   signed = str(m) + "\n" + str(r) + "\n" + str(s)
+   signed = str(r) + "\n" + str(s)
    tools.writeFile(results.output, signed)
 
 
@@ -91,7 +91,7 @@ def Sign():
 """ Verify the signature
  Input :
  - Public key (default : keys/ecdsa.pub)
- - Signed file (default : sample/text.ecdsa)
+ - Signed files (default : sample/text and sample/text.signed)
 """
 def Verif():
    print(":: Verif")
@@ -103,27 +103,27 @@ def Verif():
       results.key = 'keys/ecdsa.pub'
       
    if results.input is False:
-      results.input = 'sample/text.ecdsa'
+      results.input = 'sample/text'
       
    print(" Read public key : " + results.key)
    (curve, publickey) = key.readKey(results.key)
    
-   print(" Read the signed file : " + results.input)
-   # TODO : find a way to read the file and his signed from the same file
-   signed = tools.readFile(results.input).split('\n')
-   length = len(signed)
-   r = int(signed[length - 2])
-   s = int(signed[length - 1])
-   m = tools.readFile(results.input[0:-6])
+   print(" Read the file " + results.input)
+   m = tools.readFile(results.input)
    m = m.encode('utf-8')
+   
+   print(" Read the signed : " + results.input + ".signed")
+   signed = tools.readFile(results.input + ".signed").split('\n')
+   r = int(signed[0])
+   s = int(signed[1])
    
    print(" Verify the signature")
    ecdsa = ECDSA(curve)
    
    if ecdsa.verif(publickey, m, r, s) is True:
-      print(" => Guys this is really working.")
+      print(" => The signature has been verified.")
    else:
-      print(" => Fuck guys we have much work to do.")
+      print(" => The signature cannot ben verified.")
 
 
 parser = argparse.ArgumentParser(description='ECDSA with elliptic curve.')
