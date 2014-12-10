@@ -48,6 +48,75 @@ def Keygen():
    print(" Write private STS key : " + arg.output)
    key.writeKey(arg.output, 'DIFFIEHELLMAN', curve, x)
    
+"""
+ Input :
+ - server (bool)
+ - socket (socket)
+ - gx (Point)
+ Output :
+ - gy (Point)
+"""   
+def secret_exchange(server, socket, gx):
+   gx_bytes = (str(gx.x) + "," + str(gx.y)).encode()
+   
+   if server is True:
+      print(" Sending secret to client->gx")
+      socket.send(gx_bytes)
+   
+      print(" gy<-Getting client's secret")
+      gy_bytes = socket.recv(4096)
+   else:
+      print(" Getting server's secret")
+      gy_bytes = socket.recv(4096)
+      
+      print(" Sending secret to server")
+      socket.send(gx_bytes)
+   
+   gy_str = gy_bytes.decode()
+   (gy_str_x, gy_str_y) = gy_str.split(',')
+   gy = Point(gx.curve, int(gy_str_x), int(gy_str_y))
+   return gy
+   
+"""
+
+"""
+def sharedsecret_exchange(server, socket, ecdsa_publickey, encrypted, iv):
+   certificat_bytes = (str(ecdsa_publickey.x)+","+str(ecdsa_publickey.y)).encode()
+   if server is True:
+      print(" Sending to the client :")
+      print("  - Public key certificate->cert")
+      socket.send(certificat_bytes)
+      print("  - Signature encrypted->sign")
+      message.send(socket, encrypted)
+      message.send(socket, iv)
+
+      print(" <-Getting from the client :")
+      print("  - Public key certificate")
+      certificat_bytes_new = socket.recv(4096)
+      
+      print("  - Signature encrypted")
+      encrypted_new = message.get(socket)
+      iv_new = message.get(socket)
+   else:
+      print(" Getting from the server :")
+      print("  - Public key certificate")
+      certificat_bytes_new = socket.recv(4096)
+      print("  - Signature encrypted")
+      encrypted_new = message.get(socket)
+      iv_new = message.get(socket)
+      
+      print(" Sending to the server :")
+      print("  - Public key certificate")
+      socket.send(certificat_bytes)
+
+      print("  - Signature encrypted")
+      message.send(socket, encrypted)
+      message.send(socket, iv)
+   
+   certificat_str = certificat_bytes_new.decode()
+   (certificat_str_x, certificat_str_y) = certificat_str.split(',')
+   certificat_new = Point(ecdsa_publickey.curve, int(certificat_str_x), int(certificat_str_y))
+   return (certificat_new, encrypted_new, iv_new)
    
 """ Share
  Input :
@@ -87,113 +156,50 @@ def Share():
    
    print(" Compute : g^x")
    gx = sts.secret(x)
-   gx_bytes = (str(gx.x) + "," + str(gx.y)).encode()
    
    print(" Read ECDSA keys (certificat) : " + arg.cert + ".pub")
    (curve2, ecdsa_publickey) = key.readKey(arg.cert + ".pub")
    (curve3, ecdsa_privatekey) = key.readKey(arg.cert)
+   print(ecdsa_publickey)
    if curve != curve2 or curve != curve3:
       print (curve.p,curve.n,curve.a4,curve.a6) == (curve2.p,curve2.n,curve2.a4,curve2.a6)
       raise Exception('ECDSA keys are not on the same curve than DH secret')
       
-   certificat_bytes = (str(ecdsa_publickey.x)+","+str(ecdsa_publickey.y)).encode()
-   
-   # TODO : For now we suppose Alice and Bob has got the same curve. 
-   #        Therefore we will have to send the curve with socket too.
-   # TODO : We can optimise this. Less code for same prgm
+   # Exchange
    if arg.server is True:
-      # There is no server yet. We create it
       server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
       server.bind(('', arg.port))
       server.listen(1)
-      
       print(" Server started")
       print(" Waiting for client connection...")
-      (server_to_client, address) = server.accept()
-      
+      (exchange, address) = server.accept()
       print(" Server connected to : " + str(address))
-      print(" Sending secret to client->gx")
-      server_to_client.send(gx_bytes)
-      
-      print(" gy<-Getting client's secret")
-      gy_bytes = server_to_client.recv(4096)
-      
-      print(" Compute : Signed and encrypt it")
-      gy_str = gy_bytes.decode()
-      (gy_str_x, gy_str_y) = gy_str.split(',')
-      gy = Point(curve, int(gy_str_x), int(gy_str_y))
-      (K, encrypted, iv) = sts.sharedsecret(ecdsa_privatekey, x, gx, gy)
-      
-      print(" Sending to client :")
-      print("  - Public key certificate->cert")
-      server_to_client.send(certificat_bytes)
-      print("  - Signature encrypted->sign")
-      #length = struct.pack('!I',len(encrypted))
-      #server_to_client.send(length+encrypted)
-      message.sendM(server_to_client,encrypted)
-      length = struct.pack('!I',len(iv))
-      res = server_to_client.send(length+iv)
-
-      print(" <-Getting from the client :")
-      print("  - Public key certificate")
-      certificat_bytes = server_to_client.recv(4096)
-      print("  - Signature encrypted")
-      signed_encrypted_bytes = server_to_client.recv(4096)
-      
-      print(" Closing connection")
-      server_to_client.close()
-      server.close()
    else:
-      # There is a server. We connect to it
-      client_to_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-      client_to_server.connect((arg.host, arg.port))
+      exchange = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+      exchange.connect((arg.host, arg.port))
       print(" Connected to : " + arg.host + " on port " + str(arg.port))
 
-      print(" Getting server's secret")
-      gy_bytes = client_to_server.recv(1024)
+   gy = secret_exchange(arg.server, exchange, gx)
+   
+   print(" Compute : Signed and encrypt it")
+   (K, encrypted, iv) = sts.sharedsecret(ecdsa_privatekey, x, gx, gy)
       
-      print(" Sending secret to server")
-      client_to_server.send(gx_bytes)
+   (certificat_new, encrypted_new, iv_new) = sharedsecret_exchange(arg.server, exchange, ecdsa_publickey, encrypted, iv)
       
-      print(" Compute : Signed and encrypt it")
-      gy_str = gy_bytes.decode()
-      (gy_str_x, gy_str_y) = gy_str.split(',')
-      gy = Point(curve, int(gy_str_x), int(gy_str_y))
-      (K, encrypted, iv) = sts.sharedsecret(ecdsa_privatekey, x, gx, gy)
-
-      print(" Getting from the server :")
-      print("  - Public key certificate")
-      certificat_bytes = client_to_server.recv(4096)
-      print("  - Signature encrypted")
-      #Get size of the message
-      l = client_to_server.recv(4)
-      l_buff = struct.unpack('!I',l)[0]
+   print(" Closing connection")
+   exchange.close()
+   if arg.server is True:
+      server.close()
       
-      encrypted = client_to_server.recv(l_buff)
-      
-      l = client_to_server.recv(4)
-      l_buff = struct.unpack('!I',l)[0]
-      iv = client_to_server.recv(l_buff)
-      
-      print(" Sending to the server :")
-      print("  - Public key certificate")
-      res = client_to_server.send(certificat_bytes)
-
-      print("  - Signature encrypted")
-      client_to_server.send(encrypted)
-      client_to_server.send(iv)
-      
-      print(" Closing connection")
-      client_to_server.close()
    
       
    print(" Verification")
    print("x         : " + str(x))
    print("gx        : " + str(gx))
    print("gy        : " + str(gy))
-   print("iv        : " + str(iv))
-   print("encrypted : " + str(encrypted))
-   print("certificat: " + str(certificat_bytes))
+   print("iv        : " + str(iv_new))
+   print("encrypted : " + str(encrypted_new))
+   print("certificat: " + str(certificat_new))
    
    #print(" Write shared secret in " + arg.output)
    #key.writeKey(arg.output, 'DIFFIEHELLMAN', curve, gxy)
