@@ -172,10 +172,25 @@ class key(object):
       return (curve, key)
  
 class message(object):
+
+   """ senM
+    Send a message throught a socket
+    Input :
+    - socket (Socket)
+    - msg ()
+   """
    @staticmethod 
    def sendM(socket,msg):
       length = struct.pack('!I',len(msg))
       socket.send(length+msg)
+      
+   """ getM
+    Get a message from a socket
+    Input :
+    - socket (Socket)
+    Output :
+    - msg ()
+   """
    @staticmethod
    def getM(socket):
       l = socket.recv(4)
