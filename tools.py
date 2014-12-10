@@ -12,6 +12,7 @@
 import base64
 from elliptic import *
 from point import *
+import struct
 
 # TODO : Add exception error during read & write
 # TODO : Add buffer when reading and writing a file
@@ -162,4 +163,16 @@ class key(object):
          
       f.close()
       return (curve, key)
-      
+ 
+class message(object):
+   @staticmethod 
+   def sendM(socket,msg):
+      length = struct.pack('!I',len(msg))
+      socket.send(length+msg)
+   @staticmethod
+   def getM(socket):
+      l = socket.recv(4)
+      l_buff = struct.unpack('!I',l)[0]
+      msg = socket.recv(l_buff)
+      return msg
+   

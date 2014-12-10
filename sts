@@ -126,13 +126,12 @@ def Share():
       print("  - Public key certificate->cert")
       server_to_client.send(certificat_bytes)
       print("  - Signature encrypted->sign")
-      length = struct.pack('!I',len(encrypted))
-      server_to_client.send(length+encrypted)
-      
+      #length = struct.pack('!I',len(encrypted))
+      #server_to_client.send(length+encrypted)
+      message.sendM(server_to_client,encrypted)
       length = struct.pack('!I',len(iv))
       res = server_to_client.send(length+iv)
-      print (len(iv))
-      print(res)
+
       print(" <-Getting from the client :")
       print("  - Public key certificate")
       certificat_bytes = server_to_client.recv(4096)
