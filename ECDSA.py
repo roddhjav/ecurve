@@ -1,6 +1,6 @@
 import math
-import random
 import hashlib
+from Crypto.Random import random
 from elliptic import *
 from point import *
 from ectools import *

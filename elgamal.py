@@ -1,5 +1,5 @@
 import math
-import random
+from Crypto.Random import random
 from elliptic import *
 from point import *
 
