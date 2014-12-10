@@ -173,14 +173,14 @@ class key(object):
  
 class message(object):
 
-   """ senM
+   """ send
     Send a message throught a socket
     Input :
     - socket (Socket)
-    - msg ()
+    - msg (bytes)
    """
    @staticmethod 
-   def sendM(socket,msg):
+   def send(socket,msg):
       length = struct.pack('!I',len(msg))
       socket.send(length+msg)
       
@@ -189,10 +189,10 @@ class message(object):
     Input :
     - socket (Socket)
     Output :
-    - msg ()
+    - msg (bytes)
    """
    @staticmethod
-   def getM(socket):
+   def get(socket):
       l = socket.recv(4)
       l_buff = struct.unpack('!I',l)[0]
       msg = socket.recv(l_buff)
