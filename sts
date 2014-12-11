@@ -15,6 +15,7 @@ import socket
 from elliptic import *
 from tools import *
 from STS import *
+from stools import *
 import struct
 
 """ Generate STS key (same than DH key)
@@ -48,75 +49,6 @@ def Keygen():
    print(" Write private STS key : " + arg.output)
    key.writeKey(arg.output, 'DIFFIEHELLMAN', curve, x)
    
-"""
- Input :
- - server (bool)
- - socket (socket)
- - gx (Point)
- Output :
- - gy (Point)
-"""   
-def secret_exchange(server, socket, gx):
-   gx_bytes = (str(gx.x) + "," + str(gx.y)).encode()
-   
-   if server is True:
-      print(" Sending secret to client->gx")
-      socket.send(gx_bytes)
-   
-      print(" gy<-Getting client's secret")
-      gy_bytes = socket.recv(4096)
-   else:
-      print(" Getting server's secret")
-      gy_bytes = socket.recv(4096)
-      
-      print(" Sending secret to server")
-      socket.send(gx_bytes)
-   
-   gy_str = gy_bytes.decode()
-   (gy_str_x, gy_str_y) = gy_str.split(',')
-   gy = Point(gx.curve, int(gy_str_x), int(gy_str_y))
-   return gy
-   
-"""
-
-"""
-def sharedsecret_exchange(server, socket, ecdsa_publickey, encrypted, iv):
-   certificat_bytes = (str(ecdsa_publickey.x)+","+str(ecdsa_publickey.y)).encode()
-   if server is True:
-      print(" Sending to the client :")
-      print("  - Public key certificate->cert")
-      socket.send(certificat_bytes)
-      print("  - Signature encrypted->sign")
-      message.send(socket, encrypted)
-      message.send(socket, iv)
-
-      print(" <-Getting from the client :")
-      print("  - Public key certificate")
-      certificat_bytes_new = socket.recv(4096)
-      
-      print("  - Signature encrypted")
-      encrypted_new = message.get(socket)
-      iv_new = message.get(socket)
-   else:
-      print(" Getting from the server :")
-      print("  - Public key certificate")
-      certificat_bytes_new = socket.recv(4096)
-      print("  - Signature encrypted")
-      encrypted_new = message.get(socket)
-      iv_new = message.get(socket)
-      
-      print(" Sending to the server :")
-      print("  - Public key certificate")
-      socket.send(certificat_bytes)
-
-      print("  - Signature encrypted")
-      message.send(socket, encrypted)
-      message.send(socket, iv)
-   
-   certificat_str = certificat_bytes_new.decode()
-   (certificat_str_x, certificat_str_y) = certificat_str.split(',')
-   certificat_new = Point(ecdsa_publickey.curve, int(certificat_str_x), int(certificat_str_y))
-   return (certificat_new, encrypted_new, iv_new)
    
 """ Share
  Input :
@@ -132,11 +64,11 @@ def Share():
    if arg.curve is not False:
       raise Exception('Argument error')
       
-   if arg.key is False:
-      arg.key = 'keys/sts'
+   if arg.secret is False:
+      arg.secret = 'keys/sts'
    
-   if arg.cert is False:
-      arg.cert = 'keys/ecdsa'
+   if arg.key is False:
+      arg.key = 'keys/ecdsa'
       
    if arg.host is False:
       arg.host = 'localhost'
@@ -149,23 +81,21 @@ def Share():
    if arg.output is False:
       arg.output = 'keys/sts.shared'
             
-   print(" Read privatekey key : " + arg.key)
-   (curve, x) = key.readKey(arg.key)
+   print(" Read privatekey key : " + arg.secret)
+   (curve, x) = key.readKey(arg.secret)
    
    sts = STS(curve)
    
    print(" Compute : g^x")
    gx = sts.secret(x)
    
-   print(" Read ECDSA keys (certificat) : " + arg.cert + ".pub")
-   (curve2, ecdsa_publickey) = key.readKey(arg.cert + ".pub")
-   (curve3, ecdsa_privatekey) = key.readKey(arg.cert)
-   print(ecdsa_publickey)
+   print(" Read ECDSA keys (certificat) : " + arg.key + ".pub")
+   (curve2, ecdsa_publickey) = key.readKey(arg.key + ".pub")
+   (curve3, ecdsa_privatekey) = key.readKey(arg.key)
    if curve != curve2 or curve != curve3:
-      print (curve.p,curve.n,curve.a4,curve.a6) == (curve2.p,curve2.n,curve2.a4,curve2.a6)
       raise Exception('ECDSA keys are not on the same curve than DH secret')
       
-   # Exchange
+   # Exchanges
    if arg.server is True:
       server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
       server.bind(('', arg.port))
@@ -179,24 +109,24 @@ def Share():
       exchange.connect((arg.host, arg.port))
       print(" Connected to : " + arg.host + " on port " + str(arg.port))
 
-   gy = secret_exchange(arg.server, exchange, gx)
+   gy = stools.secret_exchange(arg.server, exchange, gx)
    
    print(" Compute : Signed and encrypt it")
-   (K, encrypted, iv) = sts.sharedsecret(ecdsa_privatekey, x, gx, gy)
-      
-   (certificat_new, encrypted_new, iv_new) = sharedsecret_exchange(arg.server, exchange, ecdsa_publickey, encrypted, iv)
+   (gxy, encrypted, iv) = sts.sharedsecret(ecdsa_privatekey, x, gx, gy)
+   
+   (certificat_new, encrypted_new, iv_new) = stools.sharedsecret_exchange(arg.server, exchange, ecdsa_publickey, encrypted, iv)
       
    print(" Closing connection")
    exchange.close()
    if arg.server is True:
       server.close()
    
-   print("x         : " + str(x))
-   print("gx        : " + str(gx))
-   print("gy        : " + str(gy))
-   print("iv        : " + str(iv_new))
-   print("encrypted : " + str(encrypted_new))
-   print("certificat: " + str(certificat_new))
+#   print("x         : " + str(x))
+#   print("gx        : " + str(gx))
+#   print("gy        : " + str(gy))
+#   print("iv        : " + str(iv_new))
+#   print("encrypted : " + str(encrypted_new))
+#   print("certificat: " + str(certificat_new))
    
    print(" Verification")
    if sts.verifysecret(certificat_new, x, gx, gy, encrypted_new, iv_new) is True:
@@ -218,12 +148,12 @@ parser.add_argument( '-S', '--share',
 parser.add_argument( '-c', '--curve',
                      action='store', default=False, dest='curve',
                      help='Load a specific elliptic curve ')
+parser.add_argument( '-t', '--secret',
+                     action='store', default=False, dest='secret',
+                     help='Load sts secret')
 parser.add_argument( '-k', '--key',
                      action='store', default=False, dest='key',
-                     help='Load  key')
-parser.add_argument( '-t', '--cert',
-                     action='store', default=False, dest='cert',
-                     help='Load certificat')
+                     help='Load ECDSA keys')
 parser.add_argument( '--host',
                      action='store', default=False, dest='host',
                      help='Hostname or IP of the other computer')

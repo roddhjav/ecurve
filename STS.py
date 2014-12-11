@@ -51,7 +51,7 @@ class STS(object):
     (gy, CertB, Ek(Sb(gx, gy)))
    """      
    def sharedsecret(self, ecdsa_privatekey, x, gx, gy):
-      K = x*gy
+      gxy = x*gy
       
       # signed = ECDSA("gx,gy")
       m = str(gx.x) + str(gx.y) + str(gy.x) + str(gy.y)
@@ -59,14 +59,14 @@ class STS(object):
       ecdsa = ECDSA(self.curve)
       (r, s) = ecdsa.sign(ecdsa_privatekey, m)
       
-      # AES(K.x, signed)
+      # AES(gxy.x, signed)
       signed = str(r) + "," + str(s)
       signed += ' ' * (16 - len(signed) % 16)
       
       # AES key. Must have 32 bits length for AES256 and 
       # 16 bits for AES128. For 256 bits EC, we need AES128.
       # TODO : Adapt AES length to the curve
-      aes_key = bin(K.x)
+      aes_key = bin(gxy.x)
       aes_key = hashlib.sha256(aes_key.encode()).digest()
       
       # AES encryption
@@ -77,12 +77,12 @@ class STS(object):
       # Encoding
       encrypted = base64.b64encode(encrypted)
       iv = base64.b64encode(iv)
-      print("(r,s)  : " + str(r) + "," + str(s))
-      print("Ek(Sb) : " + str(encrypted))
-      print("iv     : " + str(iv))
-      print("key    : " + str(base64.b64encode(aes_key)))
+#      print("(r,s)  : " + str(r) + "," + str(s))
+#      print("Ek(Sb) : " + str(encrypted))
+#      print("iv     : " + str(iv))
+#      print("key    : " + str(base64.b64encode(aes_key)))
 
-      return (K, encrypted, iv)
+      return (gxy, encrypted, iv)
 
    def verifysecret(self, ecdsa_publickey, x, gx, gy, encrypted, iv):
       K = x*gy
@@ -96,14 +96,14 @@ class STS(object):
       signed = cipher.decrypt(encrypted)
 
       (r, s) = signed.decode().split(',')
-      print("Sb     : " + str(signed))
-      print("(r,s)  : " + str(r) + "," + str(s))
-            
-      m = str(gx.x) + str(gx.y) + str(gy.x) + str(gy.y)
+      s = int(s)
+      r = int(r)
+#      print("Sb     : " + str(signed))
+#      print("(r,s)  : " + str(r) + "," + str(s))
+      
+      m = str(gy.x) + str(gy.y) + str(gx.x) + str(gx.y)
       m = m.encode()
       ecdsa = ECDSA(self.curve)
-      print(ecdsa_publickey)
-      print(ecdsa_publickey.curve)
-      print(self.curve)
+      
       return ecdsa.verif(ecdsa_publickey, m, r, s)
       

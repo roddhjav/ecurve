@@ -125,8 +125,7 @@ class key(object):
       
       f.write("-----END " + algo + " " + keytype + " KEY-----\n")
       f.close()
-
-
+      
    """ readKey
     Read ELGAMAL, ECDSA or DIFFIEHELLMAN public and private key from a file
     Input :
