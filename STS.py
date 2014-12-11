@@ -37,7 +37,6 @@ class STS(Diffiehellman):
       
       # AES key. Must have 32 bits length for AES256 and 
       # 16 bits for AES128. For 256 bits EC, we need AES128.
-      # TODO : Adapt AES length to the curve
       aes_key = bin(gxy.x)
       aes_key = hashlib.sha256(aes_key.encode()).digest()
       
