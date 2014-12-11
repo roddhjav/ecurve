@@ -108,13 +108,40 @@ Options like `--keygen`, `--sign` and `--verif` are mandatory. The other option 
 * File : `sample/text`
 * File encrypted : `sample/text.ecdsa`
 
+**WARNING** 
+ECDSA keys are named in such a way :
+* Private key : `<name>`
+* Public key : `<name>.pub`
+
 ### STS
 
+Generate Diffie Hellman key
+```
+sts --keygen -c <elliptic_curve> -o <key_path>
+```
 
-Get the help
+Create connection with a computer and share STS's secret.
+```
+sts --share --secret <secret_path> --key <ecdsa_keys> --output <sts_sharedsecret> --port <port> --host <hostname>
+```
+**WARNING** The first computer connected must create the server with `--server`
+```
+sts --share --secret <secret_path> --key <ecdsa_keys> --output <sts_sharedsecret> --port <port> --host <hostname>--server
+```
+
+Get the help :
 ```
 sts -h
 ```
+
+**WARNING** 
+Options like `--keygen` and `--share` are mandatory. The other option are not mandatory, the defaults paths are : 
+* Curve : `curves/w256-001.gp`
+* Private secret : `keys/sts`
+* ECDSA keys : `keys/ecdsa`
+* Shared secret : `keys/sts.shared`
+* Hostname : `localhost`
+* Port : `12800`
 
 ## Authors
 * Alexandre PUJOL <alexandre.pujol.1@etu.univ-amu.fr>
