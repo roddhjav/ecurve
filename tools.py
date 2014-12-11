@@ -10,9 +10,9 @@
 #
 
 import base64
+import struct
 from elliptic import *
 from point import *
-import struct
 
 __author__ = "Alexandre Pujol and Maxime Chemin"
 __credits__ = ["Alexandre Pujol", "Maxime Chemin"]
@@ -21,8 +21,6 @@ __version__= "1.0"
 __license__= "GPL"
 __status__ = "developpement"
 
-# TODO : Add exception error during read & write
-# TODO : Add buffer when reading and writing a file
 
 """ tools
  Some tools
