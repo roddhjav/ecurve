@@ -9,21 +9,28 @@ class ECDSA(object):
    """ ECDSA encryption
     - self.curve (EllipticCurve) The elliptic curve used
     - self.generator (Point) A generator of the curve
+    - self.size (int) Elliptic curve size
    """
    def __init__(self, curve):
       self.curve = curve
       self.generator = Point(self.curve, self.curve.gx, self.curve.gy)
-
+      size = len(bin(self.curve.n))
+      if size >= 240 and size <= 270:
+         self.size = 256
+      elif size >= 500 and size <= 550:
+         self.size = 512
+      else:
+         raise Exception('Elliptic curve size error')
+         
    """ Generate ecdsa keys
     - publickey (Point) the public key
     - privatekey (int) the private key
    """
    def keygen(self):
-      N = int(math.log(self.curve.n, 2)) - 1
-      c = random.getrandbits(N)
+      c = random.getrandbits(self.size)
       
       while c > (self.curve.n - 2):
-         c = random.getrandbits(N)
+         c = random.getrandbits(self.size)
       
       privatekey = c + 1
       publickey = privatekey*self.generator
@@ -41,7 +48,7 @@ class ECDSA(object):
    def sign(self, privatekey, m):
       r = 1
       s = 1
-      k = random.getrandbits(50)
+      k = random.getrandbits(self.size)
       R = k*self.generator
       
       r = R[0] % self.curve.n      
@@ -52,7 +59,10 @@ class ECDSA(object):
 
       kinv = modinv(k, self.curve.n)
       
-      H = hashlib.sha256()
+      if self.size == 256:
+         H = hashlib.sha256()
+      else:
+         H = hashlib.sha512()
       H.update(m)
       digest = H.hexdigest()
       e = int(digest, 16)
