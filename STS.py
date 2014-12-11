@@ -1,43 +1,15 @@
 import math
-import os
 import hashlib
 import base64
-from elliptic import *
-from point import *
-from ECDSA import *
+from diffiehellman import Diffiehellman
+from elliptic import EllipticCurve
+from point import Point
+from ECDSA import ECDSA
 from Crypto.Cipher import AES
 from Crypto.Random import random
 from Crypto import Random
 
-#TODO : Make STS inherit DH
-class STS(object):
-   """ STS
-    - self.curve (EllipticCurve) The elliptic curve used
-    - self.generator (Point) A generator of the curve
-   """
-   def __init__(self, curve):
-      self.curve = curve
-      self.generator = Point(self.curve, self.curve.gx, self.curve.gy)
-      
-   """ keygen
-    Private STS key generation
-    Output :
-    - x (int) Random private STS secret
-   """
-   def keygen(self):
-      bits = int(math.log(self.curve.n, 2))
-      
-      return random.getrandbits(bits - 1)
-      
-   """ secret
-    
-    Intput :
-    - x (int)
-    Output :
-    - gx (Point) 
-   """
-   def secret(self, x):
-       return x*self.generator
+class STS(Diffiehellman):
        
    """ sharedsecret
     Compute the STS shared secret

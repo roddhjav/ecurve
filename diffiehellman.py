@@ -1,7 +1,7 @@
 import math
 from Crypto.Random import random
-from elliptic import *
-from point import *
+from elliptic import EllipticCurve
+from point import Point
 
 class Diffiehellman(object):
    """ Diffie Hellman
@@ -29,7 +29,7 @@ class Diffiehellman(object):
     - gx (Point) 
    """
    def secret(self, x):
-       return x*self.generator
+      return x*self.generator
        
    """ sharedsecret
     Compute the DH shared secret
