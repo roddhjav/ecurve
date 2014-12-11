@@ -190,10 +190,7 @@ def Share():
    exchange.close()
    if arg.server is True:
       server.close()
-      
    
-      
-   print(" Verification")
    print("x         : " + str(x))
    print("gx        : " + str(gx))
    print("gy        : " + str(gy))
@@ -201,8 +198,14 @@ def Share():
    print("encrypted : " + str(encrypted_new))
    print("certificat: " + str(certificat_new))
    
-   #print(" Write shared secret in " + arg.output)
-   #key.writeKey(arg.output, 'DIFFIEHELLMAN', curve, gxy)
+   print(" Verification")
+   if sts.verifysecret(certificat_new, x, gx, gy, encrypted_new, iv_new) is True:
+      print(" => The signature has been verified.")
+      print(" Write shared secret in " + arg.output)
+      key.writeKey(arg.output, 'DIFFIEHELLMAN', curve, gxy)
+   else:
+      print(" => The signature cannot ben verified.")
+      print(" STS aborded")
    
 
 parser = argparse.ArgumentParser(description='Diffie Hellman with elliptic curve.')
