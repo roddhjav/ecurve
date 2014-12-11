@@ -30,7 +30,7 @@ class Elgamal(object):
     - c1 (int)
     - c2 (Point)
    """
-   def crypt(self, publickey, m):
+   def encrypt(self, publickey, m):
       bits = int(math.log(self.curve.n, 2))
       k = random.getrandbits(bits - 1)
       c1 = (k*publickey).x + int(m)
