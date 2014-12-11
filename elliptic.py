@@ -41,19 +41,19 @@ class EllipticCurve(object):
       res2 = (x*x*x + self.a4 * x + self.a6) % self.p
       return (res1 == res2) or z
 
-   """ str
+   """ __str__
     Return a string with the curve paramaters
    """
    def __str__(self):
       return ' y^2 = x^3 + a4x + a6\n a4 = %s\n a6 = %s\n p = %s\n n = %s' % (self.a4, self.a6, self.p, self.n)
 
-   """ repr
+   """ __repr__
     Return a string with the curve paramaters
    """
    def __repr__(self):
       return str(self)
 
-   """ eq
+   """ __eq__
     Test if two curve are egal
     Input :
      - other (EllipticCurve) The curve to test
