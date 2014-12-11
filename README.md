@@ -143,6 +143,18 @@ Options like `--keygen` and `--share` are mandatory. The other option are not ma
 * Hostname : `localhost`
 * Port : `12800`
 
+## Security purpose
+| Level | Protection                                                        | Sym | Asym  | EC  | Hash |
+|:-----:|:-----------------------------------------------------------------:|:---:|:-----:|:---:|:----:|
+| 1     | Attacks in ”real-time” by individuals                             | 32  |       |     |      |
+| 2     | Very short-term protection                                        | 64  | 816   | 128 | 128  |
+| 3     | Short-term protection against medium organizations                | 72  | 1008  | 144 | 144  |
+| 4     |                                                                   | 80  | 1248  | 160 | 160  | 
+| 5     | Legacy standard level                                             | 96  | 1776  | 192 | 192  |
+| 6     | Medium-term protection                                            | 112 | 2432  | 224 | 224  |
+| 7     | Long-term protection (minimum level recommended)                  | 128 | 3248  | 256 | 256  |
+| 8     | ”Foreseeable future”, Good protection against government agencies | 256 | 15424 | 512 | 512  |
+
 ## Authors
 * Alexandre PUJOL <alexandre.pujol.1@etu.univ-amu.fr>
 * Maxime CHEMIN <maxime.chemin@etu.univ-amu.fr>
