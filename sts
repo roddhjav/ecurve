@@ -12,17 +12,17 @@
 
 import argparse
 import socket
-from elliptic import *
-from tools import *
-from STS import *
-from stools import *
 import struct
+from elliptic import EllipticCurve
+from tools import *
+from STS import STS
+from stools import stools
 
 """ Generate STS key (same than DH key)
  Input :
  - Curve (default : curves/w256-001.gp)
  Output :
- - Private key (default : keys/sts)
+ - Private secret (default : keys/sts)
 """
 def Keygen():
    print(":: Keygen")
@@ -46,13 +46,14 @@ def Keygen():
    print(" Generate key")
    x = sts.keygen()
    
-   print(" Write private STS key : " + arg.output)
+   print(" Write private STS secret : " + arg.output)
    key.writeKey(arg.output, 'DIFFIEHELLMAN', curve, x)
    
    
 """ Share
  Input :
- - Private key (default : keys/sts)
+ - Private secret (default : keys/sts)
+ - ECDSA keys (default : keys/ecdsa) 
  - Host (default : localhost)
  - Host's port (default : 12800)
  Output :
@@ -81,7 +82,7 @@ def Share():
    if arg.output is False:
       arg.output = 'keys/sts.shared'
             
-   print(" Read privatekey key : " + arg.secret)
+   print(" Read STS secret : " + arg.secret)
    (curve, x) = key.readKey(arg.secret)
    
    sts = STS(curve)
@@ -131,7 +132,7 @@ def Share():
    print(" Verification")
    if sts.verifysecret(certificat_new, x, gx, gy, encrypted_new, iv_new) is True:
       print(" => The signature has been verified.")
-      print(" Write shared secret in " + arg.output)
+      print(" Write shared secret in : " + arg.output)
       key.writeKey(arg.output, 'DIFFIEHELLMAN', curve, gxy)
    else:
       print(" => The signature cannot ben verified.")
@@ -141,7 +142,7 @@ def Share():
 parser = argparse.ArgumentParser(description='Diffie Hellman with elliptic curve.')
 parser.add_argument( '-K','--keygen',
                      action='store_const', dest='prgm', const='keygen',
-                     help='Generate STS private key')
+                     help='Generate STS private secret')
 parser.add_argument( '-S', '--share',
                      action='store_const', dest='prgm', const='share',
                      help='Share key with an other computer')
