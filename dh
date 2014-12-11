@@ -12,46 +12,46 @@
 
 import argparse
 import socket
-from elliptic import *
+from elliptic import EllipticCurve
+from diffiehellman import Diffiehellman
 from tools import *
-from diffiehellman import *
-
+from stools import stools
 
 """ Generate Diffie Hellman keys
  Input :
  - Curve (default : curves/w256-001.gp)
  Output :
- - Private key (default : keys/dh)
+ - Private secret (default : keys/dh)
 """
 def Keygen():
    print(":: Keygen")
    
-   if results.key is not False or results.host is not False :
+   if arg.key is not False or arg.host is not False :
       raise Exception('Argument error')
-   if results.host is not False or results.port is not False:
+   if arg.host is not False or arg.port is not False:
       raise Exception('Argument error')
       
-   if results.curve is False:
-      results.curve = 'curves/w256-001.gp'
+   if arg.curve is False:
+      arg.curve = 'curves/w256-001.gp'
 
-   if results.output is False:
-      results.output = 'keys/dh'
+   if arg.output is False:
+      arg.output = 'keys/dh'
       
-   print(" Load curve : " + results.curve)
-   curve = tools.loadCurve(results.curve)
+   print(" Load curve : " + arg.curve)
+   curve = tools.loadCurve(arg.curve)
    
    dh = Diffiehellman(curve)
    
    print(" Generate keys")
    x = dh.keygen()
    
-   print(" Write keys" + results.output)
-   key.writeKey(results.output, 'DIFFIEHELLMAN', curve, x)
+   print(" Write private DH secret" + arg.output)
+   key.writeKey(arg.output, 'DIFFIEHELLMAN', curve, x)
    
    
 """ Share
  Input :
- - Private key (default : keys/dh)
+ - Private secret (default : keys/dh)
  - Host (default : localhost)
  - Host's port (default : 12800)
  Output :
@@ -60,81 +60,61 @@ def Keygen():
 def Share():
    print(":: Share key")
    
-   if results.curve is not False:
+   if arg.curve is not False:
       raise Exception('Argument error')
       
-   if results.key is False:
-      results.key = 'keys/dh'
+   if arg.key is False:
+      arg.key = 'keys/dh'
       
-   if results.host is False:
-      results.host = 'localhost'
+   if arg.host is False:
+      arg.host = 'localhost'
       
-   if results.port is False:
-      results.port = 12800
+   if arg.port is False:
+      arg.port = 12800
    else:
-      results.port = int(results.port)
+      arg.port = int(results.port)
       
-   if results.output is False:
-      results.output = 'keys/dh.shared'
+   if arg.output is False:
+      arg.output = 'keys/dh.shared'
             
-   print(" Read privatekey key : " + results.key)
-   (curve, x) = key.readKey(results.key)
+   print(" Read DH key : " + arg.key)
+   (curve, x) = key.readKey(arg.key)
    
    dh = Diffiehellman(curve)
-   gx = dh.secret(x)
-   gx_bytes = (str(gx.x) + "," + str(gx.y)).encode()
    
-   # TODO : For now we suppose Alice and Bob has got the same curve. 
-   #        But we will have to send curve with socket too.
-   # TODO : We can optimise this. Less code for same prgm
-   if results.server is True:
-      # There is no server yet. We create it
+   print(" Compute : g^x")
+   gx = dh.secret(x)
+   
+   # Exchanges
+   if arg.server is True:
       server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-      server.bind(('', results.port))
+      server.bind(('', arg.port))
       server.listen(1)
-      
       print(" Server started")
       print(" Waiting for client connection...")
-      (server_to_client, address) = server.accept()
-      
+      (exchange, address) = server.accept()
       print(" Server connected to : " + str(address))
-      print(" Sending secret to client")
-      server_to_client.send(gx_bytes)
-      
-      print(" Getting client's secret")
-      gy_bytes = server_to_client.recv(1024)
-      
-      print(" Closing connection")
-      server_to_client.close()
-      server.close()
    else:
-      # There is a server. We connect to it
-      client_to_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-      client_to_server.connect((results.host, results.port))
-      print(" Connected to : " + results.host + " on port " + str(results.port))
+      exchange = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+      exchange.connect((arg.host, arg.port))
+      print(" Connected to : " + arg.host + " on port " + str(arg.port))
 
-      print(" Getting server's secret")
-      gy_bytes = client_to_server.recv(1024)
+   gy = stools.secret_exchange(arg.server, exchange, gx)
+
+   print(" Closing connection")
+   exchange.close()
+   if arg.server is True:
+      server.close()
       
-      print(" Sending secret to server")
-      client_to_server.send(gx_bytes)
-      
-      print(" Closing connection")
-      client_to_server.close()
-      
-   gy_str = gy_bytes.decode()
-   (gy_str_x, gy_str_y) = gy_str.split(',')
-   gy = Point(curve, int(gy_str_x), int(gy_str_y))
    gxy = dh.sharedsecret(x, gy)
    
-   print(" Write shared secret in " + results.output)
-   key.writeKey(results.output, 'DIFFIEHELLMAN', curve, gxy)
+   print(" Write shared secret in : " + arg.output)
+   key.writeKey(arg.output, 'DIFFIEHELLMAN', curve, gxy)
    
-
 parser = argparse.ArgumentParser(description='Diffie Hellman with elliptic curve.')
 parser.add_argument( '-K','--keygen',
                      action='store_const', dest='prgm', const='keygen',
-                     help='Generate Diffie Hellman private key')
+                     help='Generate Diffie Hellman private secret')
 parser.add_argument( '-S', '--share',
                      action='store_const', dest='prgm', const='share',
                      help='Share key with an other computer')
@@ -158,11 +138,11 @@ parser.add_argument( '-s', '--server',
                      help='Create server connection')
 parser.add_argument( '-v', '--version', 
                      action='version', version='%(prog)s 1.0')
-results = parser.parse_args()
+arg = parser.parse_args()
 
-if results.prgm is 'keygen':
+if arg.prgm is 'keygen':
    Keygen()
-elif results.prgm is 'share':
+elif arg.prgm is 'share':
    Share()
 else:
    raise Exception('Argument error')
