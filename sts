@@ -18,56 +18,23 @@ from tools import *
 from STS import STS
 from stools import stools
 
-""" Generate STS key (same than DH key)
+""" Station To Station
  Input :
- - Curve (default : curves/w256-001.gp)
- Output :
- - Private secret (default : keys/sts)
-"""
-def Keygen():
-   print(":: Keygen")
-   
-   if arg.key is not False or arg.host is not False :
-      raise Exception('Argument error')
-   if arg.host is not False or arg.port is not False:
-      raise Exception('Argument error')
-      
-   if arg.curve is False:
-      arg.curve = 'curves/w256-001.gp'
-
-   if arg.output is False:
-      arg.output = 'keys/sts'
-      
-   print(" Load curve : " + arg.curve)
-   curve = tools.loadCurve(arg.curve)
-   
-   sts = STS(curve)
-   
-   print(" Generate key")
-   x = sts.keygen()
-   
-   print(" Write private STS secret : " + arg.output)
-   key.writeKey(arg.output, 'DIFFIEHELLMAN', curve, x)
-   
-   
-""" Share
- Input :
- - Private secret (default : keys/sts)
- - ECDSA keys (default : keys/ecdsa) 
- - Host (default : localhost)
+ - Elliptic curve (default : curves/w256-001.gp)
+ - ECDSA keys pairs (default : keys/ecdsa and keys/ecdsa.pub)
+ - Host or IP (default : localhost)
  - Host's port (default : 12800)
  Output :
  - Shared secret (default : keys/sts.shared)
 """
-def Share():
-   print(":: Share key")
-   
-   if arg.curve is not False:
-      raise Exception('Argument error')
+def sts():
+   print(":: Station To Station (STS)")
+   if arg.server is not False and arg.host is not False:
+      raise Exception('Argument error : --server and --host cannot be together')
       
-   if arg.secret is False:
-      arg.secret = 'keys/sts'
-   
+   if arg.curve is False:
+      arg.curve = 'curves/w256-001.gp'
+      
    if arg.key is False:
       arg.key = 'keys/ecdsa'
       
@@ -81,22 +48,31 @@ def Share():
       
    if arg.output is False:
       arg.output = 'keys/sts.shared'
-            
-   print(" Read STS secret : " + arg.secret)
-   (curve, x) = key.readKey(arg.secret)
+      
+   print(" Loading elliptic curve : " + arg.curve)
+   curve = tools.loadCurve(arg.curve)
    
-   sts = STS(curve)
-   
-   print(" Compute : g^x")
-   gx = sts.secret(x)
-   
-   print(" Read ECDSA keys (certificat) : " + arg.key + ".pub")
+   print(" Reading ECDSA keys pair : ")
+   print("  - Public key (certificat) : " + arg.key + ".pub")
    (curve2, ecdsa_publickey) = key.readKey(arg.key + ".pub")
+   print("  - Private key             : " + arg.key)
    (curve3, ecdsa_privatekey) = key.readKey(arg.key)
    if curve != curve2 or curve != curve3:
       raise Exception('ECDSA keys are not on the same curve than DH secret')
-      
-   # Exchanges
+   
+   sts = STS(curve)
+   
+   print(" Generating STS secret : x")
+   x = sts.keygen()
+   
+   print(" Computing : g^x")
+   gx = sts.secret(x)
+   
+   # Exchanges : 
+   # - Get  : g^y
+   # - Send : g^x, cert, AES(g^xy, ECDSA("(g^y,g^x)"))
+   # - The first user create the server (with --server)
+   # - The second server is the client
    if arg.server is True:
       server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
       server.bind(('', arg.port))
@@ -108,11 +84,13 @@ def Share():
    else:
       exchange = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
       exchange.connect((arg.host, arg.port))
+      print(" Client started")
       print(" Connected to : " + arg.host + " on port " + str(arg.port))
 
    gy = stools.secret_exchange(arg.server, exchange, gx)
    
-   print(" Compute : Signed and encrypt it")
+   print(" Computing shared secret : g^xy")
+   print(" Signing and encrypting : \"(g^y,g^x)\"")
    (gxy, encrypted, iv) = sts.sharedsecret(ecdsa_privatekey, x, gx, gy)
    
    (certificat_new, encrypted_new, iv_new) = stools.sharedsecret_exchange(arg.server, exchange, ecdsa_publickey, encrypted, iv)
@@ -120,7 +98,7 @@ def Share():
    print(" Closing connection")
    exchange.close()
    if arg.server is True:
-      server.close()
+      server.close() 
    
 #   print("x         : " + str(x))
 #   print("gx        : " + str(gx))
@@ -132,49 +110,36 @@ def Share():
    print(" Verification")
    if sts.verifysecret(certificat_new, x, gx, gy, encrypted_new, iv_new) is True:
       print(" => The signature has been verified.")
-      print(" Write shared secret in : " + arg.output)
+      print(" Writing the shared secret : " + arg.output)
       key.writeKey(arg.output, 'DIFFIEHELLMAN', curve, gxy)
    else:
       print(" => The signature cannot ben verified.")
       print(" STS aborded")
+      
+      
+if __name__ == "__main__":
    
+   parser = argparse.ArgumentParser(description='STS with elliptic curve.')
+   parser.add_argument( '-c', '--curve',
+                        action='store', default=False, dest='curve',
+                        help='Load a specific elliptic curve')
+   parser.add_argument( '-k', '--key',
+                        action='store', default=False, dest='key',
+                        help='Load ECDSA keys')
+   parser.add_argument( '--host',
+                        action='store', default=False, dest='host',
+                        help='Hostname or IP of the server')
+   parser.add_argument( '--port',
+                        action='store', default=False, dest='port',
+                        help='Hostname\'s port')
+   parser.add_argument( '-o', '--output',
+                        action='store', default=False, dest='output',
+                        help='Output file')
+   parser.add_argument( '-s', '--server',
+                        action='store_true', default=False, dest='server',
+                        help='Create the server')
+   parser.add_argument( '-v', '--version', 
+                        action='version', version='%(prog)s 1.0')
+   arg = parser.parse_args()
 
-parser = argparse.ArgumentParser(description='Diffie Hellman with elliptic curve.')
-parser.add_argument( '-K','--keygen',
-                     action='store_const', dest='prgm', const='keygen',
-                     help='Generate STS private secret')
-parser.add_argument( '-S', '--share',
-                     action='store_const', dest='prgm', const='share',
-                     help='Share key with an other computer')
-parser.add_argument( '-c', '--curve',
-                     action='store', default=False, dest='curve',
-                     help='Load a specific elliptic curve ')
-parser.add_argument( '-t', '--secret',
-                     action='store', default=False, dest='secret',
-                     help='Load sts secret')
-parser.add_argument( '-k', '--key',
-                     action='store', default=False, dest='key',
-                     help='Load ECDSA keys')
-parser.add_argument( '--host',
-                     action='store', default=False, dest='host',
-                     help='Hostname or IP of the other computer')
-parser.add_argument( '--port',
-                     action='store', default=False, dest='port',
-                     help='Hostname\'s port')
-parser.add_argument( '-o', '--output',
-                     action='store', default=False, dest='output',
-                     help='Output file')
-parser.add_argument( '-s', '--server',
-                     action='store_true', default=False, dest='server',
-                     help='Create server connection')
-parser.add_argument( '-v', '--version', 
-                     action='version', version='%(prog)s 1.0')
-arg = parser.parse_args()
-
-if arg.prgm is 'keygen':
-   Keygen()
-elif arg.prgm is 'share':
-   Share()
-else:
-   raise Exception('Argument error')
-   
+sts()
