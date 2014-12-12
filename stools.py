@@ -2,6 +2,9 @@ import socket
 from point import Point
 from tools import message
 
+""" stools
+ STS and DH tools for secret exchange using socket
+"""
 class stools(object):
 
    """ secret_exchange
