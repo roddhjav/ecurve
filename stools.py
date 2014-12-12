@@ -16,25 +16,34 @@ class stools(object):
       gx_bytes = (str(gx.x) + "," + str(gx.y)).encode()
       
       if server is True:
-         print(" Sending secret to client")
+         print(" Sending secret to client : g^x")
          message.send(socket, gx_bytes)
-      
-         print(" Getting client's secret")
+         
+         print(" Getting client's secret : g^y")
          gy_bytes = message.get(socket)
       else:
-         print(" Getting server's secret")
+         print(" Getting server's secret : g^y")
          gy_bytes = message.get(socket)
          
-         print(" Sending secret to server")
+         print(" Sending secret to server : g^x")
          message.send(socket, gx_bytes)
-      
+         
       gy_str = gy_bytes.decode()
       (gy_str_x, gy_str_y) = gy_str.split(',')
       gy = Point(gx.curve, int(gy_str_x), int(gy_str_y))
       return gy
       
    """ sharedsecret_exchange
-
+    Input :
+    - server (bool)
+    - socket (socket)
+    - ecdsa_publickey (Point) (certificat)
+    - encrypted (bytes)
+    - iv (bytes)
+    Ouptut :
+    - certificat_new (Point) (certificat)
+    - encrypted_new (bytes)
+    - iv_new (bytes)
    """
    def sharedsecret_exchange(server, socket, ecdsa_publickey, encrypted, iv):
       certificat_bytes = (str(ecdsa_publickey.x)+","+str(ecdsa_publickey.y)).encode()
@@ -45,9 +54,9 @@ class stools(object):
          print("  - Signature encrypted")
          message.send(socket, encrypted)
          message.send(socket, iv)
-
+         
          print(" Getting from the client :")
-         print("  - Public key certificate")
+         print("  - Public ecdsa key certificate")
          certificat_bytes_new = message.get(socket)
          
          print("  - Signature encrypted")
@@ -55,7 +64,7 @@ class stools(object):
          iv_new = message.get(socket)
       else:
          print(" Getting from the server :")
-         print("  - Public key certificate")
+         print("  - Public ecdsa key certificate")
          certificat_bytes_new = message.get(socket)
          print("  - Signature encrypted")
          encrypted_new = message.get(socket)
@@ -64,7 +73,7 @@ class stools(object):
          print(" Sending to the server :")
          print("  - Public ecdsa key certificate")
          message.send(socket, certificat_bytes)
-
+         
          print("  - Signature encrypted")
          message.send(socket, encrypted)
          message.send(socket, iv)
@@ -73,3 +82,4 @@ class stools(object):
       (certificat_str_x, certificat_str_y) = certificat_str.split(',')
       certificat_new = Point(ecdsa_publickey.curve, int(certificat_str_x), int(certificat_str_y))
       return (certificat_new, encrypted_new, iv_new)
+      

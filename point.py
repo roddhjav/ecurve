@@ -7,7 +7,7 @@ class Point(object):
     - curve (EllipticCurve) the curve containing this point
     - x (int) 
     - y (int)
-    - z (boolean) Indicates if point is infinite 
+    - z (boolean) Indicates if the point is infinite 
    """
    def __init__(self, curve, x, y, z = False):
       self.curve = curve
@@ -15,7 +15,7 @@ class Point(object):
       self.y = y
       self.z = z
 
-      if not curve.testPoint(x, y , z):
+      if not curve.testPoint(x, y ,z):
          raise Exception("The point %s is not on the given curve %s!" % (self, curve))
 
    """ __str__
