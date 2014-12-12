@@ -9,7 +9,7 @@ class ECDSA(object):
    """ ECDSA encryption
     - self.curve (EllipticCurve) The elliptic curve used
     - self.generator (Point) A generator of the curve
-    - self.size (int) Elliptic curve size
+    - self.size (int) Elliptic curve size (256 => SHA256, 512 => SHA512)
    """
    def __init__(self, curve):
       self.curve = curve
@@ -27,10 +27,11 @@ class ECDSA(object):
     - privatekey (int) the private key
    """
    def keygen(self):
-      c = random.getrandbits(self.size)
+      N = int(math.log(self.curve.n, 2)) - 1
+      c = random.getrandbits(N)
       
       while c > (self.curve.n - 2):
-         c = random.getrandbits(self.size)
+         c = random.getrandbits(N)
       
       privatekey = c + 1
       publickey = privatekey*self.generator
@@ -48,7 +49,8 @@ class ECDSA(object):
    def sign(self, privatekey, m):
       r = 1
       s = 1
-      k = random.getrandbits(self.size)
+      bits = int(math.log(self.curve.n, 2)) - 1
+      k = random.getrandbits(bits)
       R = k*self.generator
       
       r = R[0] % self.curve.n      
@@ -80,7 +82,10 @@ class ECDSA(object):
     - False : The signature has not been verified
    """
    def verif(self, publickey, m, r, s):
-      H = hashlib.sha256()
+      if self.size == 256:
+         H = hashlib.sha256()
+      else:
+         H = hashlib.sha512()
       H.update(m)
       
       digest = H.hexdigest()
