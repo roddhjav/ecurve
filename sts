@@ -12,7 +12,6 @@
 
 import argparse
 import socket
-import struct
 from elliptic import EllipticCurve
 from tools import *
 from STS import STS
@@ -68,7 +67,8 @@ def sts():
    print(" Computing : g^x")
    gx = sts.secret(x)
    
-   # Exchanges : 
+   # Exchanges :
+   # - Curve exchange : Server and client must be on the same curve
    # - Get  : g^y
    # - Send : g^x, cert, AES(g^xy, ECDSA("(g^y,g^x)"))
    # - The first user create the server (with --server)
