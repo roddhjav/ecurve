@@ -12,15 +12,18 @@ from Crypto import Random
 class STS(Diffiehellman):
        
    """ sharedsecret
-    Compute the STS shared secret
+    Compute the STS shared secret, sign it and encrypt the signed
+    
     Intput :
     - ecdsa_privatekey (int) ECDSA private key 
     - x (int) STS secret
-    - gy (Point)
+    - (gx, gy) (Point, Point)
 
     Output :
     - gxy (Point) g^yx = (g^y)^x
-    (gy, CertB, Ek(Sb(gx, gy)))
+    - encrypted (bytes) Signed encryped
+                        such as : encrypted =  AESk(ECDSAp("gx,gy"))
+    - iv (bytes) Initialisation vector for AES
    """      
    def sharedsecret(self, ecdsa_privatekey, x, gx, gy):
       gxy = x*gy
@@ -35,8 +38,8 @@ class STS(Diffiehellman):
       signed = str(r) + "," + str(s)
       signed += ' ' * (16 - len(signed) % 16)
       
-      # AES key. Must have 32 bits length for AES256 and 
-      # 16 bits for AES128. For 256 bits EC, we need AES128.
+      # AES key. Must have 32 bytes length for AES256 and 
+      # 16 bytes for AES128. For 256 bits EC, we need AES128.
       aes_key = bin(gxy.x)
       aes_key = hashlib.sha256(aes_key.encode()).digest()
       
@@ -48,13 +51,27 @@ class STS(Diffiehellman):
       # Encoding
       encrypted = base64.b64encode(encrypted)
       iv = base64.b64encode(iv)
-#      print("(r,s)  : " + str(r) + "," + str(s))
-#      print("Ek(Sb) : " + str(encrypted))
-#      print("iv     : " + str(iv))
-#      print("key    : " + str(base64.b64encode(aes_key)))
+      #print("(r,s)  : " + str(r) + "," + str(s))
+      #print("Ek(Sb) : " + str(encrypted))
+      #print("iv     : " + str(iv))
+      #print("key    : " + str(base64.b64encode(aes_key)))
 
       return (gxy, encrypted, iv)
+      
+   """ verifysecret
+    Verify the STS shared secret origin
+    
+    Intput :
+    - ecdsa_publickey (int) ECDSA public key (certificat)
+    - x (int) STS secret
+    - (gx, gy) (Point, Point)
+    - encrypted (bytes) Signed encryped
+    - iv (bytes) Initialisation vector for AES
 
+    Output :
+    - True if the STS shared secret is from the good user
+    - False otherwise
+   """   
    def verifysecret(self, ecdsa_publickey, x, gx, gy, encrypted, iv):
       K = x*gy
       aes_key = bin(K.x)
@@ -69,8 +86,8 @@ class STS(Diffiehellman):
       (r, s) = signed.decode().split(',')
       s = int(s)
       r = int(r)
-#      print("Sb     : " + str(signed))
-#      print("(r,s)  : " + str(r) + "," + str(s))
+      #print("Sb     : " + str(signed))
+      #print("(r,s)  : " + str(r) + "," + str(s))
       
       m = str(gy.x) + str(gy.y) + str(gx.x) + str(gx.y)
       m = m.encode()
