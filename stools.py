@@ -1,4 +1,5 @@
 import socket
+from elliptic import EllipticCurve
 from point import Point
 from tools import message
 
@@ -7,6 +8,33 @@ from tools import message
 """
 class stools(object):
 
+   """ curve_exchange
+    Test if the server and the client are using the same curve
+    Warning :  Only the minimal nomber of parameter for a curve is sended.
+               Therefore the comparaison is etablished with p, n, a4 and a6
+    Input : 
+    - curve (EllipticCurve)
+    Ouput :
+    - True if server and client are on the same curve
+    - False otherwise
+   """
+   def curve_exchange(socket, curve):
+      curve_bytes = (str(curve.p) + "," + str(curve.n) + "," + str(curve.a4) + "," + str(curve.a6)).encode()
+      
+      print(" Sending curve to the client")
+      message.send(socket, curve_bytes)
+      
+      print(" Getting server's curve")
+      curve_bytes_client = message.get(socket)
+      
+      curve_str = curve_bytes_client.decode()
+      curve_str = curve_str.split(',')
+      curve_client = EllipticCurve( int(curve_str[0]), int(curve_str[1]), int(curve_str[2]),  
+                                    int(curve_str[3]), curve.r4, curve.r6, curve.gx, curve.gy, curve.r)
+      
+      return (curve == curve_client)
+         
+         
    """ secret_exchange
     Input :
     - server (bool)

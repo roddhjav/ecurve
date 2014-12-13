@@ -86,7 +86,10 @@ def sts():
       exchange.connect((arg.host, arg.port))
       print(" Client started")
       print(" Connected to : " + arg.host + " on port " + str(arg.port))
-
+   
+   if not stools.curve_exchange(exchange, sts.curve):
+      raise Exception('Client and server are not on the same curve')
+      
    gy = stools.secret_exchange(arg.server, exchange, gx)
    
    print(" Computing shared secret : g^xy")
@@ -100,12 +103,12 @@ def sts():
    if arg.server is True:
       server.close() 
    
-#   print("x         : " + str(x))
-#   print("gx        : " + str(gx))
-#   print("gy        : " + str(gy))
-#   print("iv        : " + str(iv_new))
-#   print("encrypted : " + str(encrypted_new))
-#   print("certificat: " + str(certificat_new))
+   #print("x         : " + str(x))
+   #print("gx        : " + str(gx))
+   #print("gy        : " + str(gy))
+   #print("iv        : " + str(iv_new))
+   #print("encrypted : " + str(encrypted_new))
+   #print("certificat: " + str(certificat_new))
    
    print(" Verification")
    if sts.verifysecret(certificat_new, x, gx, gy, encrypted_new, iv_new) is True:
