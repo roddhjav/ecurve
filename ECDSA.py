@@ -1,8 +1,8 @@
 import math
 import hashlib
 from Crypto.Random import random
-from elliptic import *
-from point import *
+from elliptic import EllipticCurve
+from point import Point
 from ectools import *
 
 class ECDSA(object):

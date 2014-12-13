@@ -14,7 +14,7 @@ from elliptic import EllipticCurve
 from point import Point
 
 """ tools
- Some tools
+ Read curve, I/O files
 """
 class tools(object):
 
@@ -41,7 +41,11 @@ class tools(object):
       return curve
       
    """ readFile
-   
+    Read a plain text file
+    Input :
+    - path (String) Path of the file
+    Output :
+    - filecontent (String)
    """
    @staticmethod
    def readFile(path):
@@ -51,7 +55,10 @@ class tools(object):
       return filecontent
 
    """ writeFile
-   
+    Write a plain text file
+    Input : 
+    - path (String) Path of the file
+    - content (String)
    """ 
    @staticmethod
    def writeFile(path, content):
@@ -60,8 +67,9 @@ class tools(object):
       f.close()
 
 
-""" Key
 
+""" Key
+ I/O functions for the keys
 """      
 class key(object):
 
@@ -140,7 +148,10 @@ class key(object):
             raise Exception('Reading key : Key type error')
          file.close()
       return (curve, key)
- 
+
+"""
+ Easy to use socket functions
+""" 
 class message(object):
 
    """ send
@@ -150,9 +161,9 @@ class message(object):
     - msg (bytes)
    """
    @staticmethod 
-   def send(socket,msg):
-      length = struct.pack('!I',len(msg))
-      socket.send(length+msg)
+   def send(socket, msg):
+      length = struct.pack('!I', len(msg))
+      socket.send(length + msg)
       
    """ get
     Get a message from a socket
@@ -164,7 +175,7 @@ class message(object):
    @staticmethod
    def get(socket):
       l = socket.recv(4)
-      l_buff = struct.unpack('!I',l)[0]
+      l_buff = struct.unpack('!I', l)[0]
       msg = socket.recv(l_buff)
       return msg
    

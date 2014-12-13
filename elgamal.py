@@ -22,7 +22,7 @@ class Elgamal(object):
       publickey = privatekey*self.generator
       return (publickey, privatekey)
       
-   """ Crypt a message
+   """ Encrypt a message
     Input :
     - publickey (Point) the public key
     - m (int) message
