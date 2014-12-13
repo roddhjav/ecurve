@@ -12,23 +12,23 @@ class Diffiehellman(object):
       self.curve = curve
       self.generator = Point(self.curve, self.curve.gx, self.curve.gy)
 
-   """ keygen
-    Private Diffie Hellman key generation
+   """ secret
+   Diffie Hellman's secret
     Output :
     - x (int) Random private DH secret
    """
-   def keygen(self):
+   def secret(self):
       bits = int(math.log(self.curve.n, 2))
       return random.getrandbits(bits - 1)
       
-   """ secret
-    
+   """ gx
+    Compute g^x (ie : x*g in EC)
     Intput :
     - x (int)
     Output :
     - gx (Point) 
    """
-   def secret(self, x):
+   def gx(self, x):
       return x*self.generator
        
    """ sharedsecret

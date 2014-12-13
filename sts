@@ -62,10 +62,10 @@ def sts():
    sts = STS(curve)
    
    print(" Generating STS secret : x")
-   x = sts.keygen()
+   x = sts.secret()
    
    print(" Computing : g^x")
-   gx = sts.secret(x)
+   gx = sts.gx(x)
    
    # Exchanges :
    # - Curve exchange : Server and client must be on the same curve

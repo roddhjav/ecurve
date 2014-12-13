@@ -51,10 +51,10 @@ def dh():
    dh = Diffiehellman(curve)
    
    print(" Generating DH secret : x")
-   x = dh.keygen()
+   x = dh.secret()
    
    print(" Computing : g^x")
-   gx = dh.secret(x)
+   gx = dh.gx(x)
    
    # Exchanges :
    # - Curve exchange : Server and client must be on the same curve
