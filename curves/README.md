@@ -1,22 +1,38 @@
 # Elliptic curves under Weierstrass form of prime order n over a finite prime field F_p
 
-size(p) : about 256 bits
-y^2 = x^3 + a4 x + a6
+## Description : `y^2 = x^3 + a4 x + a6`
 Number of points n: a prime number
 
-a4 and a6 are built from two random numbers r4 and r6 by the two following equations:
+a4 and a6 are built from two random numbers r4 and r6 by the two following equations :
 ```
 a4 = hextodec(sha512.hex("dec(r14)"))  modulo p
 a6 = hextodec(sha512.hex("dec(r16)"))  modulo p
 ```
 
-We give also a generator (gx,gy) of the group of the elliptic curve
-This generator is random and 
-```
-gx = hextodec(sha512.hex("dec(r)"))  modulo p
-```
+We give also a generator (gx, gy) of the group of the elliptic curve.
 
-(we draw a random r, compute gx by the previous formula, test if z = x^3 + a4 x + a6
+This generator is random such as : `gx = hextodec(sha512.hex("dec(r)"))  modulo p`
+
+We draw a random r, compute gx by the previous formula, test if z = x^3 + a4 x + a6 
 is a square, if yes, we compute gy, if no, we draw an another r)
 
 source : http://galg.acrypta.com/
+
+## Sizes
+We provide two sizes of elliptic curve :
+* `w256-*.gp` : 256 bits lenght elliptic curve
+* `w512-*.gp` : 512 bits lenght elliptic curve
+
+## Example :
+**w256-001.gp**
+```
+p=8884933102832021670310856601112383279507496491807071433260928721853918699951
+n=8884933102832021670310856601112383279454437918059397120004264665392731659049
+a4=2481513316835306518496091950488867366805208929993787063131352719741796616329
+a6=4387305958586347890529260320831286139799795892409507048422786783411496715073
+r4=5473953786136330929505372885864126123958065998198197694258492204115618878079
+r6=5831273952509092555776116225688691072512584265972424782073602066621365105518
+gx=7638166354848741333090176068286311479365713946232310129943505521094105356372
+gy=762687367051975977761089912701686274060655281117983501949286086861823169994
+r=8094458595770206542003150089514239385761983350496862878239630488323200271273
+```
