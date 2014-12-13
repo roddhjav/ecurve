@@ -12,8 +12,8 @@
 
 import argparse
 from tools import *
-from elliptic import *
-from ECDSA import *
+from elliptic import EllipticCurve
+from ECDSA import ECDSA
 
 """ Generate ecdsa keys
  Input :
@@ -75,17 +75,15 @@ def Sign():
    print(" Reading the private key : " + arg.key)
    (curve, privatekey) = key.readKey(arg.key)
    
-   print(" Reading the message : " + arg.input)
-   m = tools.readFile(arg.input)
-   m = m.encode('utf-8')
-   
-   print(" Sign the message")
+   print(" Signing : " + arg.input)
+   m = tools.readFile(arg.input).encode('utf-8')
    ecdsa = ECDSA(curve)
    (r, s) = ecdsa.sign(privatekey, m)    
    
-   print(" Writing the signed message : " + arg.output)
-   signed = str(r) + "\n" + str(s)
-   tools.writeFile(arg.output, signed)
+   print(" Writing the signed file : " + arg.output)
+   with open(arg.output, "w") as signed:
+      signed.write(str(r) + "\n" + str(s))
+      signed.close()
 
 
 
