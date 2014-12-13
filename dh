@@ -17,54 +17,22 @@ from diffiehellman import Diffiehellman
 from tools import *
 from stools import stools
 
-""" Generate Diffie Hellman keys
+""" Diffie Hellman
  Input :
- - Curve (default : curves/w256-001.gp)
- Output :
- - Private secret (default : keys/dh)
-"""
-def Keygen():
-   print(":: Keygen")
-   
-   if arg.key is not False or arg.host is not False :
-      raise Exception('Argument error')
-   if arg.host is not False or arg.port is not False:
-      raise Exception('Argument error')
-      
-   if arg.curve is False:
-      arg.curve = 'curves/w256-001.gp'
-
-   if arg.output is False:
-      arg.output = 'keys/dh'
-      
-   print(" Load curve : " + arg.curve)
-   curve = tools.loadCurve(arg.curve)
-   
-   dh = Diffiehellman(curve)
-   
-   print(" Generate keys")
-   x = dh.keygen()
-   
-   print(" Write private DH secret" + arg.output)
-   key.writeKey(arg.output, 'DIFFIEHELLMAN', curve, x)
-   
-   
-""" Share
- Input :
- - Private secret (default : keys/dh)
- - Host (default : localhost)
+ - Elliptic curve (default : curves/w256-001.gp)
+ - Host or IP (default : localhost)
  - Host's port (default : 12800)
  Output :
  - Shared secret (default : keys/dh.shared)
 """
-def Share():
-   print(":: Share key")
+def dh():
+   print(":: Diffie Hellman (DH)")
    
-   if arg.curve is not False:
-      raise Exception('Argument error')
+   if arg.server is not False and arg.host is not False:
+      raise Exception('Argument error : --server and --host cannot be together')
       
-   if arg.key is False:
-      arg.key = 'keys/dh'
+   if arg.curve is False:
+      arg.curve = 'curves/w256-001.gp'
       
    if arg.host is False:
       arg.host = 'localhost'
@@ -76,16 +44,24 @@ def Share():
       
    if arg.output is False:
       arg.output = 'keys/dh.shared'
-            
-   print(" Read DH key : " + arg.key)
-   (curve, x) = key.readKey(arg.key)
+      
+   print(" Loading elliptic curve : " + arg.curve)
+   curve = tools.loadCurve(arg.curve)
    
    dh = Diffiehellman(curve)
    
-   print(" Compute : g^x")
+   print(" Generating DH secret : x")
+   x = dh.keygen()
+   
+   print(" Computing : g^x")
    gx = dh.secret(x)
    
-   # Exchanges
+   # Exchanges :
+   # - Curve exchange : Server and client must be on the same curve
+   # - Get  : g^y
+   # - Send : g^x
+   # - The first user create the server (with --server)
+   # - The second server is the client
    if arg.server is True:
       server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
       server.bind(('', arg.port))
@@ -98,9 +74,12 @@ def Share():
       exchange = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
       exchange.connect((arg.host, arg.port))
       print(" Connected to : " + arg.host + " on port " + str(arg.port))
-
+      
+   if not stools.curve_exchange(exchange, dh.curve):
+      raise Exception('Client and server are not on the same curve')
+      
    gy = stools.secret_exchange(arg.server, exchange, gx)
-
+   
    print(" Closing connection")
    exchange.close()
    if arg.server is True:
@@ -108,42 +87,31 @@ def Share():
       
    gxy = dh.sharedsecret(x, gy)
    
-   print(" Write shared secret in : " + arg.output)
+   print(" Writing the shared secret : " + arg.output)
    key.writeKey(arg.output, 'DIFFIEHELLMAN', curve, gxy)
    
-parser = argparse.ArgumentParser(description='Diffie Hellman with elliptic curve.')
-parser.add_argument( '-K','--keygen',
-                     action='store_const', dest='prgm', const='keygen',
-                     help='Generate Diffie Hellman private secret')
-parser.add_argument( '-S', '--share',
-                     action='store_const', dest='prgm', const='share',
-                     help='Share key with an other computer')
-parser.add_argument( '-c', '--curve',
-                     action='store', default=False, dest='curve',
-                     help='Load a specific elliptic curve ')
-parser.add_argument( '-k', '--key',
-                     action='store', default=False, dest='key',
-                     help='Load  key')
-parser.add_argument( '--host',
-                     action='store', default=False, dest='host',
-                     help='Hostname or IP of the other computer')
-parser.add_argument( '--port',
-                     action='store', default=False, dest='port',
-                     help='Hostname\'s port')
-parser.add_argument( '-o', '--output',
-                     action='store', default=False, dest='output',
-                     help='Output file')
-parser.add_argument( '-s', '--server',
-                     action='store_true', default=False, dest='server',
-                     help='Create server connection')
-parser.add_argument( '-v', '--version', 
-                     action='version', version='%(prog)s 1.0')
-arg = parser.parse_args()
+   
+if __name__ == "__main__":
 
-if arg.prgm is 'keygen':
-   Keygen()
-elif arg.prgm is 'share':
-   Share()
-else:
-   raise Exception('Argument error')
+   parser = argparse.ArgumentParser(description='Diffie Hellman (DH) with elliptic curve.')
+   parser.add_argument( '-c', '--curve',
+                        action='store', default=False, dest='curve',
+                        help='Load a specific elliptic curve ')
+   parser.add_argument( '--host',
+                        action='store', default=False, dest='host',
+                        help='Hostname or IP of the server')
+   parser.add_argument( '--port',
+                        action='store', default=False, dest='port',
+                        help='Hostname\'s port')
+   parser.add_argument( '-o', '--output',
+                        action='store', default=False, dest='output',
+                        help='Output file')
+   parser.add_argument( '-s', '--server',
+                        action='store_true', default=False, dest='server',
+                        help='Create server connection')
+   parser.add_argument( '-v', '--version', 
+                        action='version', version='%(prog)s 1.0')
+   arg = parser.parse_args()
+   
+   dh()
    
