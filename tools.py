@@ -11,8 +11,8 @@
 
 import base64
 import struct
-from elliptic import *
-from point import *
+from elliptic import EllipticCurve
+from point import Point
 
 __author__ = "Alexandre Pujol and Maxime Chemin"
 __credits__ = ["Alexandre Pujol", "Maxime Chemin"]
@@ -28,28 +28,25 @@ __status__ = "developpement"
 class tools(object):
 
    """ loadCurve
-   
+    Read a curve's file in .gp format (see curves/README.md)
+    Input :
+    - path (String) Path of the curve's file
+    Output :
+    - curve (EllipticCurve)
    """
    @staticmethod
    def loadCurve(path):
-      data = {}
-      f = open(path, "r")
-      lines = f.readlines()
-      
-      for line in lines:
-         (var, val) = line.split('=')
-         data[var] = int(val)
-      
-      curve = EllipticCurve(  data["p"],
-                              data["n"],
-                              data["a4"],
-                              data["a6"],
-                              data["r4"],
-                              data["r6"],
-                              data["gx"],
-                              data["gy"],
-                              data["r"])
-      f.close()
+      with open(path, "r") as file:
+         data = {}
+         lines = file.readlines()
+         for line in lines:
+            (var, val) = line.split('=')
+            data[var] = int(val)
+         
+         curve = EllipticCurve(  data["p"], data["n"], data["a4"], data["a6"],
+                                 data["r4"], data["r6"], data["gx"], data["gy"],
+                                 data["r"])
+         file.close()
       return curve
       
    """ readFile
