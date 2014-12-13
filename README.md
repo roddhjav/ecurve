@@ -160,6 +160,8 @@ sts --help
 
 ## Security purpose
 
+We provide elliptic curve for level 7 and 8.
+
 | Level | Protection                                                        | Sym | Asym  | EC  | Hash |
 |:-----:|:-----------------------------------------------------------------:|:---:|:-----:|:---:|:----:|
 | 1     | Attacks in ”real-time” by individuals                             | 32  |       |     |      |
