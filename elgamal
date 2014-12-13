@@ -11,9 +11,10 @@
 #
 
 import argparse
+import sys
 from tools import *
-from elliptic import *
-from elgamal import *
+from elliptic import EllipticCurve
+from elgamal import Elgamal
 
 
 """ Generate Elgamal keys
@@ -51,15 +52,15 @@ def Keygen():
 
 
 
-""" Crypt message
+""" Encryption
  Input :
  - Public key (default : keys/elgamal.pub)
  - Message (default : sample/text)
  Output :
  - Encoded message (default : sample/text.elgamal)
 """ 
-def Crypt():
-   print(":: Crypt")
+def Encryption():
+   print(":: Encryption")
    
    if arg.curve is not False:
       raise Exception('Argument error')
@@ -76,28 +77,34 @@ def Crypt():
    print(" Reading the public key : " + arg.key)
    (curve, publickey) = key.readKey(arg.key)
    
-   print(" Reading the mesage : " + arg.input)
-   m = tools.readFile(arg.input)
-      
-   print(" Crypt the message")
+   print(" Encypting :")
+   print(" - Input file  : " + arg.input)
+   print(" - Output file : " + arg.output)
    elgamal = Elgamal(curve)
-   (c1, c2) = elgamal.encrypt(publickey, m)    
-   
-   print(" Writing the encrypted message : " + arg.output)
-   c = str(c1) + "\n" + str(c2.x) + "\n" + str(c2.y)
-   tools.writeFile(arg.output, c)
+   with open(arg.input, "rb") as file:
+      with open(arg.output, 'w') as cipher:
+         buffer_size = 35
+         byte = file.read(buffer_size)
+         while byte:
+            m = int.from_bytes(byte, sys.byteorder)
+            (c1, c2) = elgamal.encrypt(publickey, m)
+            cipher.write(str(c1)+ "\n")
+            cipher.write(str(c2.x)+ "\n")
+            cipher.write(str(c2.y)+ "\n")
+            byte = file.read(buffer_size)
+         cipher.close()
+      file.close()
 
 
-
-""" Decrypt elgamal message
+""" Decryption elgamal cipher
  Input :
  - Private key (default : keys/elgamal)
  - Encoded message (default : sample/text.elgamal)
  Output :
  - Message (default : sample/text.decoded)
 """
-def Decrypt():
-   print(":: Decrypt")
+def Decryption():
+   print(":: Decryption")
    
    if arg.curve is not False:
       raise Exception('Argument error')
@@ -114,19 +121,23 @@ def Decrypt():
    print(" Reading the private key : " + arg.key)
    (curve, privatekey) = key.readKey(arg.key)
    
-   print(" Reading the encrypted message : " + arg.input)
-   c = tools.readFile(arg.input)
-   c1 = int(c.split('\n')[0])
-   c2 = Point(curve, int(c.split('\n')[1]), int(c.split('\n')[2]))
-   
-   print(" Decrypt the message")
+   print(" Decryption :")
+   print(" - Input file  : " + arg.input)
+   print(" - Output file : " + arg.output)
    elgamal = Elgamal(curve)
-   m = elgamal.decrypt(privatekey, c1, c2)
-   
-   print(" Writing the decrypted message")
-   tools.writeFile(arg.output, str(m))
-
-
+   with open(arg.input, "r") as cipher:
+      with open(arg.output, 'wb') as file:
+         lines = cipher.readlines()
+         ii = 0
+         while ii < len(lines):
+            c2 = Point(curve, int(lines[ii + 1]), int(lines[ii + 2]))
+            m = elgamal.decrypt(privatekey, int(lines[ii]), c2)
+            file.write(m.to_bytes(m.bit_length()//8 + 1, sys.byteorder))
+            ii += 3
+         file.close()
+      cipher.close()
+      
+      
 parser = argparse.ArgumentParser(description='Elgamal with elliptic curve.')
 parser.add_argument( '-K','--keygen',
                      action='store_const', dest='prgm', const='keygen',
@@ -156,9 +167,9 @@ arg = parser.parse_args()
 if arg.prgm is 'keygen':
    Keygen()
 elif arg.prgm is 'crypt':
-   Crypt()
+   Encryption()
 elif arg.prgm is 'decrypt':
-   Decrypt()
+   Decryption()
 else:
    raise Exception('Argument error')
    
