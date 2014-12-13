@@ -131,10 +131,10 @@ ecdsa --help
 
 ### STS : `sts`
 
-**Requirements**
+**Requirements :**
 * You need to generate first an ECDSA key pair with the same curve you will use for STS
-* <key> is your ECDSA private key
-* <key.pub> is your ECDSA public key 
+* `<key>` is your ECDSA private key
+* `<key.pub>` is your ECDSA public key 
 
 **Create connection with a computer and start STS protocol :**
 ```
