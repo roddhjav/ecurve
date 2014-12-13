@@ -122,13 +122,13 @@ def sts():
       
 if __name__ == "__main__":
    
-   parser = argparse.ArgumentParser(description='STS with elliptic curve.')
+   parser = argparse.ArgumentParser(description='Station To Station (STS) with elliptic curve.')
    parser.add_argument( '-c', '--curve',
                         action='store', default=False, dest='curve',
                         help='Load a specific elliptic curve')
    parser.add_argument( '-k', '--key',
                         action='store', default=False, dest='key',
-                        help='Load ECDSA keys')
+                        help='Load ECDSA keys pair (public and private)')
    parser.add_argument( '--host',
                         action='store', default=False, dest='host',
                         help='Hostname or IP of the server')
