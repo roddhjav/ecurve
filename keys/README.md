@@ -2,17 +2,7 @@
 
 It is the default directory for all the keys
 
-## Diffie Hellman keys
-### Secret
-**Header**
-```
------BEGIN DIFFIEHELLMAN PRIVATE KEY-----
-```
-
-**Contents**
-* The curve 
-* g^xy as shared secret. Its a point of the curve
-
+## Diffie Hellman & STS
 ### Shared secret
 **Header**
 ```
@@ -69,7 +59,7 @@ It is the default directory for all the keys
 ## Key example :
 A public ECDSA key :
 * The curve : `(p, n, a4, a6, r4, r6, gx, gy, r)`
-* The key : `(Kx, Ky, true)`
+* The key : `(Kx, Ky)`
 
 ```
 -----BEGIN ECDSA PUBLIC KEY-----
