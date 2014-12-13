@@ -48,7 +48,7 @@ For AES function and the secure random generator you need the python library Cry
 ## Usages
 All the following command are showed with they full command. But some command are not mandatory as described 
 
-### Diffie Hellman : `dh`
+### Diffie Hellman (DH) : `dh`
 
 **Create connection with a computer and start DH protocol :**
 ```
@@ -71,6 +71,8 @@ dh --help
 * `<localhost>` : `12800`
 
 ### Elgamal : `elgamal`
+This front-end provide an easy to use command for encrypt a file with elgamal. The front-end read the file as a binary file but write the cipher as a text file.
+As an asymetric security primitives, Elgamal is used for encryption of short message like keys. Do not use it for encrypt big file.
 
 **Generate an elgamal key pair : `<key>` as private and `<key.pub>` as public key**
 ```
@@ -101,6 +103,7 @@ elgamal --help
 * `<file.decoded>` : `sample/text.decoded` File decrypted
 
 ### ECDSA : `ecdsa`
+`ecdsa` read your file as a binary file with a buffer. Therefore, you can sign any file you want.
 
 **Generate an ECDSA key pair : `<key>` as private and `<key.pub>` as public key**
 ```
@@ -129,7 +132,7 @@ ecdsa --help
 * `<file>` : `sample/text` Plain text file
 * `<file.signed>` : `sample/text.signed` The signed of the file (You still need the file itsel)
 
-### STS : `sts`
+### Sation To Station (STS) : `sts`
 
 **Requirements :**
 * You need to generate first an ECDSA key pair with the same curve you will use for STS
@@ -164,7 +167,7 @@ We provide elliptic curve for level 7 and 8.
 
 | Level | Protection                                                        | Sym | Asym  | EC  | Hash |
 |:-----:|:-----------------------------------------------------------------:|:---:|:-----:|:---:|:----:|
-| 1     | Attacks in ”real-time” by individuals                             | 32  |       |     |      |
+| 1     | Attacks in "real-time" by individuals                             | 32  |       |     |      |
 | 2     | Very short-term protection                                        | 64  | 816   | 128 | 128  |
 | 3     | Short-term protection against medium organizations                | 72  | 1008  | 144 | 144  |
 | 4     |                                                                   | 80  | 1248  | 160 | 160  | 
