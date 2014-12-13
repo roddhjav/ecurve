@@ -19,7 +19,8 @@ class stools(object):
     - False otherwise
    """
    def curve_exchange(socket, curve):
-      curve_bytes = (str(curve.p) + "," + str(curve.n) + "," + str(curve.a4) + "," + str(curve.a6)).encode()
+      curve_bytes = (str(curve.p) + "," + str(curve.n) + "," +
+                     str(curve.a4) + "," + str(curve.a6)).encode()
       
       print(" Sending curve to the client")
       message.send(socket, curve_bytes)
@@ -29,13 +30,16 @@ class stools(object):
       
       curve_str = curve_bytes_client.decode()
       curve_str = curve_str.split(',')
-      curve_client = EllipticCurve( int(curve_str[0]), int(curve_str[1]), int(curve_str[2]),  
-                                    int(curve_str[3]), curve.r4, curve.r6, curve.gx, curve.gy, curve.r)
+      curve_client = EllipticCurve( int(curve_str[0]), int(curve_str[1]), 
+                                    int(curve_str[2]), int(curve_str[3]), 
+                                    curve.r4, curve.r6, curve.gx, curve.gy,
+                                    curve.r)
       
       return (curve == curve_client)
-         
-         
+      
+      
    """ secret_exchange
+    For DH and STS
     Input :
     - server (bool)
     - socket (socket)
@@ -65,6 +69,7 @@ class stools(object):
       return gy
       
    """ sharedsecret_exchange
+    For STS protocol only
     Input :
     - server (bool)
     - socket (socket)
