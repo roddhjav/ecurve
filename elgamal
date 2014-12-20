@@ -12,9 +12,9 @@
 
 import argparse
 import sys
-from tools import *
-from elliptic import EllipticCurve
-from elgamal import Elgamal
+from ecurve.tools import *
+from ecurve.elliptic import EllipticCurve
+from ecurve.elgamal import Elgamal
 
 
 """ Generate Elgamal keys

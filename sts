@@ -12,10 +12,10 @@
 
 import argparse
 import socket
-from elliptic import EllipticCurve
-from tools import *
-from STS import STS
-from stools import stools
+from ecurve.elliptic import EllipticCurve
+from ecurve.tools import *
+from ecurve.STS import STS
+from ecurve.stools import stools
 
 """ Station To Station
  Input :

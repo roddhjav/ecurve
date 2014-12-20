@@ -11,9 +11,9 @@
 #
 
 import argparse
-from tools import *
-from elliptic import EllipticCurve
-from ECDSA import ECDSA
+from ecurve.tools import *
+from ecurve.elliptic import EllipticCurve
+from ecurve.ECDSA import ECDSA
 
 """ Generate ecdsa keys
  Input :
