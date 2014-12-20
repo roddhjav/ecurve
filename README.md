@@ -28,12 +28,12 @@ DiffieHellman, Elfgamal, ECDSA & STS with elliptic curve in python
 
 **File system :**
 * `curves/` : 
-  - There is 17 256bits curves and 18 512bits curves. All front-end and class manage the two sizes of curve
-  - The curve from http://galg.acrypta.com/. Therefore there are not classic curve recommend by the NIST
-  - Elliptic curves under Weierstrass form
+  - There are 17 256bits curves and 18 512bits curves. All front-end and class manage the two sizes of curve
+  - The curve are taken from http://galg.acrypta.com/. Therefore these are not the usual curves recommended by the NIST
+  - We use Weierstrass curves
   - See `curves/README.md` for more information
 * `keys/`
-  - As the curve are not the classic NSA's curve. The key format containt the curve itself.
+  - As the curve are not the classic NSA's curves, the key format contains the curve itself.
   - See `keys/README.md` for more information about keys format
 * `sample/`
   - Default directory for plain text, signed and encrypted files
@@ -46,7 +46,7 @@ That software run with Python 3.4.2. It hasn't been tested with Python 2.7.
 For AES function and the secure random generator you need the python library Crypto avaible [here](https://pypi.python.org/pypi/pycrypto)
 
 ## Usages
-All the following command are showed with they full command. But some command are not mandatory as described 
+All the following command are showed with all their options. But some options are not mandatory as described 
 
 ### Diffie Hellman (DH) : `dh`
 
@@ -71,7 +71,7 @@ dh --help
 * `<localhost>` : `12800`
 
 ### Elgamal : `elgamal`
-This front-end provide an easy to use command for encrypt a file with elgamal. The front-end read the file as a binary file but write the cipher as a text file.
+This front-end provide an easy to use command for encrypt a file with elgamal. The front-end reads the file as a binary file but writes the cipher as a text file.
 As an asymetric security primitives, Elgamal is used for encryption of short message like keys. Do not use it for encrypt big file.
 
 **Generate an elgamal key pair : `<key>` as private and `<key.pub>` as public key**
@@ -103,7 +103,7 @@ elgamal --help
 * `<file.decoded>` : `sample/text.decoded` File decrypted
 
 ### ECDSA : `ecdsa`
-`ecdsa` read your file as a binary file with a buffer. Therefore, you can sign any file you want.
+`ecdsa` reads your file as a binary file with a buffer. Therefore, you can sign any file you want.
 
 **Generate an ECDSA key pair : `<key>` as private and `<key.pub>` as public key**
 ```
