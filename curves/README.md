@@ -13,8 +13,8 @@ We give also a generator (gx, gy) of the group of the elliptic curve.
 
 This generator is random such as : `gx = hextodec(sha512.hex("dec(r)"))  modulo p`
 
-We draw a random r, compute gx by the previous formula, test if z = x^3 + a4 x + a6 
-is a square, if yes, we compute gy, if no, we draw an another r)
+We draw a random r, compute gx using the previous formula, test if z = x^3 + a4 x + a6 
+is a square, if yes, we compute gy, if not, we draw an another r)
 
 source : http://galg.acrypta.com/
 
