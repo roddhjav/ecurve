@@ -11,7 +11,7 @@ It is the default directory for all the keys
 
 **Contents**
 * The curve 
-* g^xy as shared secret. Its a point of the curve
+* The shared secret g*xy (equivalent of g^xy in other schemes). It is a point of the curve
 
 ## Elgamal keys
 ### Private key
@@ -22,7 +22,7 @@ It is the default directory for all the keys
 
 **Contents**
 * The curve 
-* Private key. Its a int
+* Private key. It is an integer with a length depending on the curve used
 
 ### Public key
 **Header**
@@ -32,7 +32,7 @@ It is the default directory for all the keys
 
 **Content**
 * The curve 
-* Public key. Its a point of the curve
+* The public key which is a point of the curve.
 
 ## ECDSA keys
 ### Private key
@@ -43,7 +43,7 @@ It is the default directory for all the keys
 
 **Contents**
 * The curve 
-* Private key. Its a int
+* Private key. Its an integer with a size depending on the curve used.
 
 ### Public key
 **Header**
@@ -53,7 +53,7 @@ It is the default directory for all the keys
 
 **Contents**
 * The curve 
-* Public key. Its a point of the curve
+* The public key. It is a point of the curve
 
 
 ## Key example :
