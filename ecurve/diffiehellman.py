@@ -1,7 +1,7 @@
 import math
 from Crypto.Random import random
-from elliptic import EllipticCurve
-from point import Point
+from .elliptic import EllipticCurve
+from .point import Point
 
 class Diffiehellman(object):
    """ Diffie Hellman

@@ -1,7 +1,7 @@
 import socket
-from elliptic import EllipticCurve
-from point import Point
-from tools import message
+from .elliptic import EllipticCurve
+from .point import Point
+from .tools import message
 
 """ stools
  STS and DH tools for secret exchange using socket

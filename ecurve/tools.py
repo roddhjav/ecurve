@@ -10,8 +10,8 @@
 #
 
 import struct
-from elliptic import EllipticCurve
-from point import Point
+from .elliptic import EllipticCurve
+from .point import Point
 
 """ tools
  Read curve, I/O files

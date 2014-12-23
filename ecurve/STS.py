@@ -1,10 +1,10 @@
 import math
 import hashlib
 import base64
-from diffiehellman import Diffiehellman
-from elliptic import EllipticCurve
-from point import Point
-from ECDSA import ECDSA
+from .diffiehellman import Diffiehellman
+from .elliptic import EllipticCurve
+from .point import Point
+from .ECDSA import ECDSA
 from Crypto.Cipher import AES
 from Crypto.Random import random
 from Crypto import Random

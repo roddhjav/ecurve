@@ -1,5 +1,5 @@
 import math
-from ectools import *
+from .ectools import *
 
 class Point(object):
    """ Point

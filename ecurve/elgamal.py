@@ -1,7 +1,7 @@
 import math
 from Crypto.Random import random
-from elliptic import *
-from point import *
+from .elliptic import *
+from .point import *
 
 class Elgamal(object):
    """ ElGamal encryption
