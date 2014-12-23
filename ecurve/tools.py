@@ -1,14 +1,3 @@
-#
-# Elliptic Curves in python
-# Version 1.0
-# Year 2014
-# Author Alexandre PUJOL <alexandre.pujol.1@etu.univ-amu.fr>
-# Author Maxime CHEMIN <maxime.chemin@etu.univ-amu.fr>
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License.
-#
-
 import struct
 from .elliptic import EllipticCurve
 from .point import Point
