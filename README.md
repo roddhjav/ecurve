@@ -4,11 +4,14 @@ DiffieHellman, Elfgamal, ECDSA & STS with elliptic curve in python
 
 ## Description
 
-**That software provide four security primitives class ;**
+### General
+**That software provide a python package with elliptic curves and security primitives class :**
 * Diffie Hellman : `diffiehellman.py`
 * ElGamal : `elgamal.py`
 * ECDSA : `ECDSA.py`
 * STS : `STS.py`
+* Elliptic Curves : `elliptic.py` and `point.py`
+* Some tools : `tools.py`, `ectools.py`, `stools.py`
 
 **In more there is four front-end for an immediate usage :**
 * Diffie Hellman : `dh`
@@ -16,6 +19,7 @@ DiffieHellman, Elfgamal, ECDSA & STS with elliptic curve in python
 * ECDSA : `ecdsa`
 * STS : `sts`
 
+### Program architecture
 **Tools used by primitives Class and front-end :**
 * `EllipticCurve` : The elliptic curve class
 * `Point` ; The point class
@@ -39,11 +43,13 @@ DiffieHellman, Elfgamal, ECDSA & STS with elliptic curve in python
   - Default directory for plain text, signed and encrypted files
   - See `sample/README.md` for more information
 
-## Requirements :
+## Requirements
 
-That software run with Python 3.4.2. It hasn't been tested with Python 2.7.
+That software run with Python 2.x and 3.x.
 
 For AES function and the secure random generator you need the python library Crypto avaible [here](https://pypi.python.org/pypi/pycrypto)
+
+If you want to install the pakage ecurve : `sudo python setup install`
 
 ## Usages
 All the following command are showed with all their options. But some options are not mandatory as described 
