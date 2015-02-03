@@ -10,6 +10,11 @@
 #
 
 from setuptools import setup
+from distutils.core import Extension
+
+tools_ext = Extension('fasttools',
+            libraries=['gmp'],
+            sources=['fasttools.c'])
 
 setup(name='ecurve',
 	version='1.0',
@@ -18,5 +23,6 @@ setup(name='ecurve',
 	url='https://github.com/alexandrepujol/ecurve',
 	license='GPL',
 	packages=['ecurve'],
+    ext_modules= [tools_ext],
 	install_requires=['pycrypto',],
 	zip_safe=False)

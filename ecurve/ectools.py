@@ -1,3 +1,4 @@
+import fasttools
 """ ectools
  Some tools for elliptic curve
 """      
@@ -15,12 +16,16 @@ def egcd(a, b):
 """ modinv
  Modular inverse
 """
-def modinv(a, m):
+def modinv2(a, m):
    g, x, y = egcd(a, m)
    if g != 1:
       raise Exception('modular inverse does not exist')
    else:
       return x % m
+
+def modinv(a, m):
+	c = fasttools.modinv(str(a), str(m))
+	return int(c)
 
 """ primes
  Takes a number as argument and returns the factorization of that number
