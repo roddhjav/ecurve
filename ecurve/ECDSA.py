@@ -47,6 +47,23 @@ class ECDSA(object):
     - s (int)
    """
    def sign(self, privatekey, m):
+      if self.size == 256:
+         H = hashlib.sha256()
+      else:
+         H = hashlib.sha512()
+      H.update(m)
+      digest = H.hexdigest()
+      return self._sign(privatekey, digest)
+   
+   """ Sign a message
+    Input :
+    - privatekey (int) the private key
+    - digest, hexadecimal digest
+    Output :
+    - r (int)
+    - s (int)
+   """
+   def _sign(self, privatekey, digest):
       r = 1
       s = 1
       bits = int(math.log(self.curve.n, 2)) - 1
@@ -61,16 +78,10 @@ class ECDSA(object):
 
       kinv = modinv(k, self.curve.n)
       
-      if self.size == 256:
-         H = hashlib.sha256()
-      else:
-         H = hashlib.sha512()
-      H.update(m)
-      digest = H.hexdigest()
       e = int(digest, 16)
       s = (kinv*(e + privatekey*r)) % self.curve.n
       return (r, s)
-   
+      
    """ Verify a signature
     Input :
     - publickey (Point) the public key
@@ -87,8 +98,20 @@ class ECDSA(object):
       else:
          H = hashlib.sha512()
       H.update(m)
-      
       digest = H.hexdigest()
+      return self._verif(publickey, digest, r, s)
+      
+   """ Verify a signature
+    Input :
+    - publickey (Point) the public key
+    - digest, hexadecimal digest
+    - r (int)
+    - s (int)
+    Output :
+    - True  : The signature has been verified
+    - False : The signature has not been verified
+   """
+   def _verif(self, publickey, digest, r, s):
       e = int(digest, 16)
       
       w = modinv(s, self.curve.n)
@@ -102,5 +125,4 @@ class ECDSA(object):
       if R[0] == r:
          return True
       else:
-         return False
-         
+         return False   
