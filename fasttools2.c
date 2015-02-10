@@ -3,7 +3,6 @@
 
 void modinv(mpz_t res, mpz_t a, mpz_t b) {
     
-
     int ret = mpz_invert (res, a, b);
 
     if ( ret == 0 ) {   
@@ -46,18 +45,20 @@ static PyMethodDef FastToolsMethods[] = {
 };
 
 //2.7
-/* 
+
 DL_EXPORT(void) initfasttools(void)
 {
   Py_InitModule("fasttools", FastToolsMethods);
-} */
+} 
 
+//3.2
+/*
 static struct PyModuleDef fasttoolsmodule = {
    PyModuleDef_HEAD_INIT,
-   "fasttools",   /* name of module */
-   NULL, /* module documentation, may be NULL */
-   -1,       /* size of per-interpreter state of the module,
-                or -1 if the module keeps state in global variables. */
+   "fasttools",   // name of module 
+   NULL, // module documentation, may be NULL 
+   -1,       // size of per-interpreter state of the module,
+             //   or -1 if the module keeps state in global variables. 
    FastToolsMethods
 };
 
@@ -65,5 +66,5 @@ PyMODINIT_FUNC
 PyInit_fasttools(void)
 {
     return PyModule_Create(&fasttoolsmodule);
-}
+}*/
 

@@ -11,10 +11,18 @@
 
 from setuptools import setup
 from distutils.core import Extension
+import sys
+
+(major, minor, micro, level, serial) = sys.version_info
+
+if major > 2:
+    source = 'fasttools3.c'
+else:
+    source = 'fasttools2.c'
 
 tools_ext = Extension('fasttools',
             libraries=['gmp'],
-            sources=['fasttools.c'])
+            sources=[source])
 
 setup(name='ecurve',
 	version='1.0',
