@@ -2,6 +2,8 @@
 
 DiffieHellman, Elfgamal, ECDSA & STS with elliptic curve in python
 
+**WARNING** This was a school project **do not** use it for actual security purpose.
+
 ## Description
 
 ### General
